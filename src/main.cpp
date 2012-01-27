@@ -26,9 +26,14 @@ int main()
 void init()
 {
 	int choice;
+	string name;
 
 	running = 1;
-	cout << "The story starts here" << endl << endl;
+	cout << "You wake up with a headache trying to remember your name..." << endl;
+	cout << "What is your name? ";
+	cin >> name;
+	player.setname(name);
+
 	cout << "You are a ..." << endl;
 	cout << "1. Warrior" << endl;
 	cout << "2. Mage" << endl;
@@ -39,13 +44,25 @@ void init()
 	
 	switch (choice) {
 	case 1:
-		cout << "Warrior class" << endl;
+		player.setclass(WARRIOR);
+		player.setmaxhp(50);
+		player.setmaxsp(10);
+		player.setminatk(20);
+		player.setmaxatk(25);
 		break;
 	case 2:
-		cout << "Mage class" << endl;
+		player.setclass(MAGE);
+		player.setmaxhp(20);
+		player.setmaxsp(30);
+		player.setminatk(5);
+		player.setmaxatk(10);
 		break;
 	case 3:
-		cout << "Ranger class" << endl;
+		player.setclass(RANGER);
+		player.setmaxhp(25);
+		player.setmaxsp(5);
+		player.setminatk(30);
+		player.setmaxatk(40);
 		break;
 	}
 	
@@ -59,9 +76,13 @@ void cleanup()
 
 void view_stats()
 {
+	cout << "Your stats:" << endl;
 	cout << "Name: " << player.getname() << endl;
-/*	cout << player.hp << "/" << player.maxhp << endl;
-	cout << player.sp << "/" << player.maxsp << endl;
-	cout << "Attack: " << player.atk << endl;
-	cout << "Defense: " << player.def << endl;*/
+	cout << "Class: " << player.getclass() << endl;
+	cout << "Level: " << player.getlevel() << endl;
+	cout << "Exp: " << player.getexp() << "/100" << endl;
+	cout << "HP: " << player.gethp() << "/" << player.getmaxhp() << endl;
+	cout << "SP: " << player.getsp() << "/" << player.getmaxsp() << endl;
+	cout << "Attack: " << player.getminatk() << "-" << player.getmaxatk() << endl;
+//	cout << "Defense: " << player.def << endl;
 }
