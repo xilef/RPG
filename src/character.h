@@ -5,6 +5,8 @@
 using std::string;
 
 enum class_system {WARRIOR, MAGE, RANGER};
+enum location {OUTSIDE, PUB};
+
 class character
 {
 	public:
@@ -18,7 +20,8 @@ class character
 		inline unsigned short getexp() const {return (exp);};
 		inline unsigned short getminatk() const {return (minatk);};
 		inline unsigned short getmaxatk() const {return (maxatk);};
-		string getclass () const;
+		string getclass() const;
+		enum location getlocation() const {return (loc);};
 
 		inline void setname(const string &n) {name = n;};
 		inline void setmaxhp(const unsigned short &h) {maxhp = hp = h;};
@@ -26,10 +29,14 @@ class character
 		inline void setminatk(const unsigned short &min) {minatk = min;};
 		inline void setmaxatk(const unsigned short &max) {maxatk = max;};
 		inline void setclass(const enum class_system &c) {type = c;};
+		inline void setlocation(const enum location &l) {loc = l;};
+		
+		void attack();
 
 	private:
 		string name;
 		enum class_system type;
+		enum location loc;
 		unsigned short maxhp, hp, maxsp, sp, minatk, maxatk, def;
 		unsigned char turn, exp, level;
 		unsigned int gold;
