@@ -18,6 +18,7 @@ character::character()
 		exp(0),
 		turn(1),
 		level(1),
+		dodge(1),
 		gold(1)
 {
 
@@ -53,12 +54,19 @@ void character::attack(character &e)
 
 void character::receivedamage(const unsigned short damage)
 {
-	if (damage > hp)
-		hp = 0;
-	else
-		hp -= damage;
+	int d = rand() % 100;
+	cout << name;
+	if (dodge <= d) {
+		if (damage > hp)
+			hp = 0;
+		else
+			hp -= damage;
 
-	cout << name << " took " << damage << " damage!" << endl;
+		cout << " took " << damage << " damage!" << endl;
+	}
+	else {
+		cout << " avoided the attack!" << endl;
+	}
 }
 
 bool character::levelup(const short ex)

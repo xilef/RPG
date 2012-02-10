@@ -23,6 +23,7 @@ class character
 		inline unsigned short getmaxexp() const {return(maxexp);};
 		inline unsigned char getlevel() const {return(level);};
 		inline unsigned char getturn() const {return(turn);};
+		inline unsigned char getdodge() const {return(dodge);};
 		inline unsigned int getgold() const {return(gold);};
 		string getstringclass() const;
 		inline enum location getlocation() const {return(loc);};
@@ -38,6 +39,7 @@ class character
 		inline void setlocation(const enum location &l) {loc = l;};
 		inline void setlevel(const unsigned char l) {level = l;};
 		inline void setturn(const unsigned char t) {turn = t;};
+		inline void setdodge(const unsigned char d) {dodge = d;};
 		inline void setgold(const unsigned int g) {gold = g;};
 
 		void heal(const unsigned short h);
@@ -53,7 +55,7 @@ class character
 		enum class_system type;
 		enum location loc;
 		unsigned short maxhp, hp, maxsp, sp, maxatk, minatk, def, maxexp, exp;
-		unsigned char turn, level;
+		unsigned char turn, level, dodge;
 		unsigned int gold;
 };
 #endif

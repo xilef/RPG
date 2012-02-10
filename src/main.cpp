@@ -110,6 +110,7 @@ void view_full_stats(character &ch)
 	cout << "HP: " << ch.gethp() << "/" << ch.getmaxhp() << endl;
 	cout << "SP: " << ch.getsp() << "/" << ch.getmaxsp() << endl;
 	cout << "Attack: " << ch.getminatk() << "-" << ch.getmaxatk() << endl;
+	cout << "Dodge: " << ch.getdodge() << endl;
 	cout << "Current gold: " << ch.getgold() << endl;
 	cout << endl;
 }
@@ -345,6 +346,7 @@ void change_class(character &p, int choice)
 		p.setmaxsp(10);
 		p.setminatk(20);
 		p.setmaxatk(25);
+		p.setdodge(30);
 		break;
 	case 2:
 		p.setclass(MAGE);
@@ -352,6 +354,7 @@ void change_class(character &p, int choice)
 		p.setmaxsp(30);
 		p.setminatk(5);
 		p.setmaxatk(10);
+		p.setdodge(40);
 		break;
 	case 3:
 		p.setclass(RANGER);
@@ -360,6 +363,7 @@ void change_class(character &p, int choice)
 		p.setminatk(30);
 		p.setmaxatk(40);
 		p.setturn(2);
+		p.setdodge(60);
 		break;
 	}
 }
