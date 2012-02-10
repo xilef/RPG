@@ -24,6 +24,7 @@
 #define RUN_CHOICE 3
 
 #define ENEMY_CHANCE 60
+#define REST_COST 20
 
 using namespace::std;
 
@@ -32,12 +33,15 @@ character player;
 
 void init();
 void cleanup();
-void view_full_stats(character &ch);
-void view_stats(character &ch);
+void view_full_stats(const character &ch);
+void view_stats(const character &ch);
 void show_pub_menu();
 void show_outside_menu();
 void random_encounter();
 void fight(character &enemy);
+void increase_stats(character &p);
+void change_class(character &p, int choice);
+void make_enemy(character &e, const unsigned char level);
 
 int main()
 {
@@ -68,45 +72,24 @@ void init()
 	running = true;
 	player.setlocation(PUB);
 	cout << "You wake up with a headache trying to remember eveything..." << endl;
-	cout << "What is your name? ";
+	cout << "What is your name?" << endl << ": ";
 	cin >> name;
 	player.setname(name);
+	player.setgold(500);
 
-	cout << "And you are a ..." << endl;
+	cout << endl;
 	cout << "1. Warrior" << endl;
 	cout << "2. Mage" << endl;
 	cout << "3. Ranger" << endl;
+	cout << "And you are a ..." << endl;
 	do {
+		cout << ": ";
 		cin >> choice;
 	} while (choice < 1 || choice > 3);
 
-	// Inital stats
-	switch (choice) {
-	case 1:
-		player.setclass(WARRIOR);
-		player.setmaxhp(50);
-		player.setmaxsp(10);
-		player.setminatk(20);
-		player.setmaxatk(25);
-		break;
-	case 2:
-		player.setclass(MAGE);
-		player.setmaxhp(20);
-		player.setmaxsp(30);
-		player.setminatk(5);
-		player.setmaxatk(10);
-		break;
-	case 3:
-		player.setclass(RANGER);
-		player.setmaxhp(25);
-		player.setmaxsp(5);
-		player.setminatk(30);
-		player.setmaxatk(40);
-		player.setturn(2);
-		break;
-	}
+	// Setup initial player stats
+	change_class(player, choice);
 
-	// Seeding the random number generator for encounters
 	srand(time(NULL));
 
 	cout << endl;
@@ -123,10 +106,11 @@ void view_full_stats(character &ch)
 	cout << "Name: " << ch.getname() << endl;
 	cout << "Class: " << ch.getstringclass() << endl;
 	cout << "Level: " << (int)ch.getlevel() << endl;
-	cout << "Exp: " << (int)ch.getexp() << "/100" << endl;
+	cout << "Exp: " << ch.getexp() << "/" << ch.getmaxexp()<< endl;
 	cout << "HP: " << ch.gethp() << "/" << ch.getmaxhp() << endl;
 	cout << "SP: " << ch.getsp() << "/" << ch.getmaxsp() << endl;
 	cout << "Attack: " << ch.getminatk() << "-" << ch.getmaxatk() << endl;
+	cout << "Current gold: " << ch.getgold() << endl;
 	cout << endl;
 }
 
@@ -146,9 +130,10 @@ void show_pub_menu()
 	cout << BUY_CHOICE << ". Buy items" << endl;
 	cout << STAT_CHOICE << ". Show stats" << endl;
 	cout << EXIT_CHOICE << ". End your Journey" << endl;
-	cout << "What do you want to do? ";
+	cout << "What do you want to do?" << endl;
 
 	do {
+		cout << ": ";
 		cin >> choice;
 	} while (choice < 1 || choice > EXIT_CHOICE);
 
@@ -158,8 +143,12 @@ void show_pub_menu()
 		player.setlocation(OUTSIDE);
 		break;
 	case REST_CHOICE:
-		cout << endl << "You slept and is now refreshed" << endl;
-		player.rest();
+		if (player.usegold(REST_COST)) {
+			cout << endl << "You slept and is now refreshed" << endl;
+			player.heal(player.getmaxhp());
+		} else {
+			cout << endl << "Insufficient gold!" << endl;
+		}
 		break;
 	case BUY_CHOICE:
 		break;
@@ -183,9 +172,10 @@ void show_outside_menu()
 	cout << PUB_CHOICE << ". Go back to the pub" << endl;
 	cout << STAT_CHOICE << ". Show stats" << endl;
 	cout << EXIT_CHOICE << ". End your Journey" << endl;
-	cout << "What do you want to do? ";
+	cout << "What do you want to do?" << endl;
 
 	do {
+		cout << ": ";
 		cin >> choice;
 	} while (choice < 1 || choice > EXIT_CHOICE);
 
@@ -216,13 +206,7 @@ void random_encounter()
 
 	if (i <= ENEMY_CHANCE) {
 		character enemy;
-		enemy.setname("Ogre");
-		enemy.setclass(ENEMY);
-		enemy.setmaxhp(28 + (7 + level * 5));
-		enemy.setmaxsp(10 + (2 * level));
-		enemy.setminatk(24 + (1.5 * level));
-		enemy.setmaxatk(29 + (1.5 * level));
-		enemy.setlevel(level);
+		make_enemy(enemy, level);
 		fight(enemy);
 	}
 }
@@ -230,13 +214,17 @@ void random_encounter()
 void fight(character &enemy)
 {
 	int choice;
+	unsigned int gold;
+	unsigned short exp;
 	unsigned char pturn, eturn;
-	unsigned short damage;
 	bool escape = false;
 
 	pturn = player.getturn();
 	eturn = enemy.getturn();
+	exp = enemy.getmaxhp();
+	gold = enemy.getgold();
 
+	cout << endl;
 	cout << "An enemy has appeared!" << endl;
 	while (!player.isdead() && !enemy.isdead() && !escape) {
 		view_stats(player);
@@ -246,57 +234,159 @@ void fight(character &enemy)
 			cout << ATTACK_CHOICE << ". Attack" << endl;
 			cout << ITEM_CHOICE << ". Use an item" << endl;
 			cout << RUN_CHOICE << ". Run away" << endl;
-			cout << "What do you want to do? ";
+			cout << "What do you want to do?" << endl;
 
 			do {
+				cout << ": ";
 				cin >> choice;
 			} while (choice < 1 || choice > RUN_CHOICE);
 			cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
 			switch (choice) {
 			case ATTACK_CHOICE:
-				cout << "You attacked " << enemy.getname() << "!" << endl;
-				damage = player.attack(enemy);
-				cout << enemy.getname() << " received " << damage << " damage" << endl;
+				cout << endl << "You attacked " << enemy.getname() << "!" << endl;
+				player.attack(enemy);
+				cin.get();
 				break;
 			case ITEM_CHOICE:
+				cin.get();
 				break;
 			case RUN_CHOICE:
 				escape = true;
 				break;
 			}
-			cin.get();
 
 			pturn--;
-			if (eturn == 0) 
+			if (eturn <= 0) 
 				eturn++;
 		} else if (eturn > 0) {
 			cout << enemy.getname() << " attacks you!" << endl;
-			damage = enemy.attack(player);
-			cout << "You received " << damage << " damage" << endl;
+			enemy.attack(player);
 
 			cin.get();
 
 			eturn--;
-			if (pturn == 0) 
+			if (pturn <= 0) 
 				pturn++;
 		}
 	}
 
 	if (enemy.isdead()) {
 		cout << enemy.getname() << " defeated!" << endl;
-		cout << "You received " << enemy.getmaxhp() << " exp" << endl;
+		cout << "You received " << exp << " exp" << endl;
+		cout << "You received " << gold << " gold" << endl;
 
-		if (player.levelup(enemy.getmaxhp())) {
+		player.addgold(gold);
+		if (player.levelup(exp)) {
 			cout << "You leveled-up!" << endl;
+			increase_stats(player);
 			view_full_stats(player);
 		}
 	} else if (player.isdead()) {
 		cout << "You died!" << endl;
+		cout << "Lost half of your gold and experience points!" << endl;
+		player.levelup(-(player.getexp() / 2));
 		player.setlocation(PUB);
-		player.rest();
+		player.heal(player.getmaxhp());
 	} else if (escape)
 		cout << "Escaped!" << endl;
 
 	cout << endl;
+}
+
+void increase_stats(character &p)
+{
+	unsigned short hp, sp, minatk, maxatk, maxexp;
+	unsigned char level;
+	hp = p.getmaxhp();
+	sp = p.getmaxsp();
+	minatk = p.getminatk();
+	maxatk = p.getmaxatk();
+	maxexp = p.getmaxexp();
+	level = p.getlevel();
+
+	maxexp += maxexp / 2;
+	switch (p.getclass()) {
+	case WARRIOR:
+		hp += 10 + (7 * level);
+		sp += 1.25 * level;
+		minatk += 2 * level;
+		maxatk += 2 * level;
+		break;
+	case MAGE:
+		hp += 5 + (2.5 * level);
+		sp += 3 * level;
+		minatk += 0.75 * level;
+		maxatk += 0.75 * level;
+		break;
+	case RANGER:
+		hp += 5 + (3 * level);
+		sp += 1.5 * level;
+		minatk += 3 * level;
+		maxatk += 3 * level;
+		break;
+	case ENEMY:
+		break;
+	}
+
+	p.setmaxhp(hp);
+	p.setmaxsp(sp);
+	p.setminatk(minatk);
+	p.setmaxatk(maxatk);
+	p.setmaxexp(maxexp);
+}
+
+void change_class(character &p, int choice)
+{
+	switch (choice) {
+	case 1:
+		p.setclass(WARRIOR);
+		p.setmaxhp(50);
+		p.setmaxsp(10);
+		p.setminatk(20);
+		p.setmaxatk(25);
+		break;
+	case 2:
+		p.setclass(MAGE);
+		p.setmaxhp(20);
+		p.setmaxsp(30);
+		p.setminatk(5);
+		p.setmaxatk(10);
+		break;
+	case 3:
+		p.setclass(RANGER);
+		p.setmaxhp(25);
+		p.setmaxsp(5);
+		p.setminatk(30);
+		p.setmaxatk(40);
+		p.setturn(2);
+		break;
+	}
+}
+
+// Make enemy stats relative to player's current level
+void make_enemy(character &e, const unsigned char level)
+{
+	unsigned char x;
+	unsigned short hp, sp, minatk, maxatk;
+	hp = 28;
+	sp = 10;
+	minatk = 24;
+	maxatk = 29;
+	
+	for (x = 0; x < level; x++) {
+		hp += 7 + (5 * level);
+		sp += 10 + (2 * level);
+		minatk += 1.5 * level;
+		maxatk += 1.5 * level;
+	}
+
+	e.setname("Pikachu");
+	e.setclass(ENEMY);
+	e.setmaxhp(hp);
+	e.setmaxsp(sp);
+	e.setminatk(minatk);
+	e.setmaxatk(maxatk);
+	e.setlevel(level);
+	e.setgold(50);
 }

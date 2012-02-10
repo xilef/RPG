@@ -1,5 +1,9 @@
 #include "character.h"
 #include <stdlib.h>
+#include <iostream>
+
+using std::cout;
+using std::endl;
 
 character::character()
 	: name("New Player"),
@@ -7,11 +11,11 @@ character::character()
 		hp(1),
 		maxsp(1),
 		sp(1),
-		minatk(1),
 		maxatk(1),
+		minatk(1),
 		def(1),
-		exp(0),
 		maxexp(100),
+		exp(0),
 		turn(1),
 		level(1),
 		gold(1)
@@ -41,12 +45,10 @@ bool character::isdead() const
 	return(false);
 }
 
-unsigned short character::attack(character &e) const
+void character::attack(character &e)
 {
 	int d = rand() % (maxatk - minatk) + minatk;
 	e.receivedamage(d);
-
-	return (d);
 }
 
 void character::receivedamage(const unsigned short damage)
@@ -55,16 +57,38 @@ void character::receivedamage(const unsigned short damage)
 		hp = 0;
 	else
 		hp -= damage;
+
+	cout << name << " took " << damage << " damage!" << endl;
 }
 
-bool character::levelup(const unsigned short ex)
+bool character::levelup(const short ex)
 {
-	if (exp + ex >= maxexp) {
+	if (exp + ex < 0) {
+		exp = 0;
+	} else if (exp + ex >= maxexp) {
 		level++;
 		exp += ex - maxexp;
 		return (true);
 	} else {
 		exp += ex;
-		return (false);
 	}
+	return (false);
+}
+
+void character::heal(const unsigned short h)
+{
+	if (h >= maxhp)
+		hp = maxhp;
+	else
+		hp += h;
+}
+
+bool character::usegold(unsigned int g)
+{
+	if (g > gold)
+		return (false);
+	else
+		gold -= g;
+
+	return (true);
 }

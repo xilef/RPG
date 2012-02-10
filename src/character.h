@@ -19,9 +19,11 @@ class character
 		inline unsigned short getsp() const {return(sp);};
 		inline unsigned short getminatk() const {return(minatk);};
 		inline unsigned short getmaxatk() const {return(maxatk);};
+		inline unsigned short getexp() const {return(exp);};
+		inline unsigned short getmaxexp() const {return(maxexp);};
 		inline unsigned char getlevel() const {return(level);};
-		inline unsigned char getexp() const {return(exp);};
 		inline unsigned char getturn() const {return(turn);};
+		inline unsigned int getgold() const {return(gold);};
 		string getstringclass() const;
 		inline enum location getlocation() const {return(loc);};
 		inline enum class_system getclass() const {return(type);};
@@ -31,22 +33,26 @@ class character
 		inline void setmaxsp(const unsigned short s) {maxsp = sp = s;};
 		inline void setminatk(const unsigned short min) {minatk = min;};
 		inline void setmaxatk(const unsigned short max) {maxatk = max;};
+		inline void setmaxexp(const unsigned short maxep) {maxexp = maxep;};
 		inline void setclass(const enum class_system &c) {type = c;};
 		inline void setlocation(const enum location &l) {loc = l;};
 		inline void setlevel(const unsigned char l) {level = l;};
 		inline void setturn(const unsigned char t) {turn = t;};
-		
-		unsigned short attack(character &e) const;
+		inline void setgold(const unsigned int g) {gold = g;};
+
+		void heal(const unsigned short h);
+		void attack(character &e);
 		void receivedamage(const unsigned short damage);
-		bool levelup(const unsigned short ex);
+		bool levelup(const short ex);
 		bool isdead() const;
-		inline void rest() {hp = maxhp; sp = maxsp;};
+		bool usegold(unsigned int g);
+		inline void addgold(unsigned int g) {gold += g;};
 
 	private:
 		string name;
 		enum class_system type;
 		enum location loc;
-		unsigned short maxhp, hp, maxsp, sp, minatk, maxatk, def, exp, maxexp;
+		unsigned short maxhp, hp, maxsp, sp, maxatk, minatk, def, maxexp, exp;
 		unsigned char turn, level;
 		unsigned int gold;
 };
