@@ -110,7 +110,7 @@ void view_full_stats(character &ch)
 	cout << "HP: " << ch.gethp() << "/" << ch.getmaxhp() << endl;
 	cout << "SP: " << ch.getsp() << "/" << ch.getmaxsp() << endl;
 	cout << "Attack: " << ch.getminatk() << "-" << ch.getmaxatk() << endl;
-	cout << "Dodge: " << ch.getdodge() << endl;
+	cout << "Dodge: " << (int)ch.getdodge() << endl;
 	cout << "Current gold: " << ch.getgold() << endl;
 	cout << endl;
 }
@@ -358,10 +358,10 @@ void change_class(character &p, int choice)
 		break;
 	case 3:
 		p.setclass(RANGER);
-		p.setmaxhp(25);
+		p.setmaxhp(30);
 		p.setmaxsp(5);
-		p.setminatk(30);
-		p.setmaxatk(40);
+		p.setminatk(13);
+		p.setmaxatk(18);
 		p.setturn(2);
 		p.setdodge(60);
 		break;
@@ -377,7 +377,7 @@ void make_enemy(character &e, const unsigned char level)
 	sp = 10;
 	minatk = 24;
 	maxatk = 29;
-	
+
 	for (x = 0; x < level; x++) {
 		hp += 7 + (5 * level);
 		sp += 10 + (2 * level);

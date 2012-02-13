@@ -56,7 +56,7 @@ void character::receivedamage(const unsigned short damage)
 {
 	int d = rand() % 100;
 	cout << name;
-	if (dodge <= d) {
+	if (d > dodge) {
 		if (damage > hp)
 			hp = 0;
 		else
