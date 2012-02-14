@@ -6,20 +6,9 @@ using std::cout;
 using std::endl;
 
 character::character()
-	: name("New Player"),
-		maxhp(1),
-		hp(1),
-		maxsp(1),
-		sp(1),
-		maxatk(1),
-		minatk(1),
-		def(1),
-		maxexp(100),
-		exp(0),
-		turn(1),
-		level(1),
-		dodge(1),
-		gold(1)
+	: maxhp(1), hp(1), maxsp(1), sp(1), maxatk(1), minatk(1), def(1),
+		maxexp(100), exp(0), turn(1), level(1), dodge(1), gold(1),
+		name("New Player")
 {
 
 }

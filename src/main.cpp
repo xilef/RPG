@@ -1,37 +1,23 @@
 // A very simple Text based RPG
 // written by Felix Isaac Palomares
-
+#include "main.h"
+#include "character.h"
+#include "skill.h"
 #include <iostream>
 #include <string>
+#include <list>
 #include <stdlib.h>
 #include <limits>
-#include "character.h"
-
-// Pub menu choices
-#define EXPLORE_CHOICE 1
-#define REST_CHOICE 2
-#define BUY_CHOICE 3
-#define STAT_CHOICE 4
-#define EXIT_CHOICE 5
-
-// Outside menu choices
-#define MOVE_CHOICE 1
-#define PUB_CHOICE 2
-
-//Attack menu choices
-#define ATTACK_CHOICE 1
-#define ITEM_CHOICE 2
-#define RUN_CHOICE 3
-
-#define ENEMY_CHANCE 60
-#define REST_COST 20
 
 using namespace::std;
 
 bool running;
 character player;
+list<skill> skill_list;
 
 void init();
+void change_class(character &p, int choice);
+void init_skills();
 void cleanup();
 void view_full_stats(const character &ch);
 void view_stats(const character &ch);
@@ -40,7 +26,6 @@ void show_outside_menu();
 void random_encounter();
 void fight(character &enemy);
 void increase_stats(character &p);
-void change_class(character &p, int choice);
 void make_enemy(character &e, const unsigned char level);
 
 int main()
@@ -95,6 +80,41 @@ void init()
 	cout << endl;
 }
 
+void change_class(character &p, int choice)
+{
+	switch (choice) {
+	case 1:
+		p.setclass(WARRIOR);
+		p.setmaxhp(50);
+		p.setmaxsp(10);
+		p.setminatk(20);
+		p.setmaxatk(25);
+		p.setdodge(30);
+		break;
+	case 2:
+		p.setclass(MAGE);
+		p.setmaxhp(20);
+		p.setmaxsp(30);
+		p.setminatk(5);
+		p.setmaxatk(10);
+		p.setdodge(40);
+		break;
+	case 3:
+		p.setclass(RANGER);
+		p.setmaxhp(30);
+		p.setmaxsp(5);
+		p.setminatk(13);
+		p.setmaxatk(18);
+		p.setturn(2);
+		p.setdodge(60);
+		break;
+	}
+}
+
+void init_skills()
+{
+
+}
 void cleanup()
 {
 
@@ -234,6 +254,7 @@ void fight(character &enemy)
 		if (pturn > 0) {
 			cout << ATTACK_CHOICE << ". Attack" << endl;
 			cout << ITEM_CHOICE << ". Use an item" << endl;
+			cout << SKILL_CHOICE << ". Use a skill" << endl;
 			cout << RUN_CHOICE << ". Run away" << endl;
 			cout << "What do you want to do?" << endl;
 
@@ -250,6 +271,9 @@ void fight(character &enemy)
 				cin.get();
 				break;
 			case ITEM_CHOICE:
+				cin.get();
+				break;
+			case SKILL_CHOICE:
 				cin.get();
 				break;
 			case RUN_CHOICE:
@@ -335,37 +359,6 @@ void increase_stats(character &p)
 	p.setminatk(minatk);
 	p.setmaxatk(maxatk);
 	p.setmaxexp(maxexp);
-}
-
-void change_class(character &p, int choice)
-{
-	switch (choice) {
-	case 1:
-		p.setclass(WARRIOR);
-		p.setmaxhp(50);
-		p.setmaxsp(10);
-		p.setminatk(20);
-		p.setmaxatk(25);
-		p.setdodge(30);
-		break;
-	case 2:
-		p.setclass(MAGE);
-		p.setmaxhp(20);
-		p.setmaxsp(30);
-		p.setminatk(5);
-		p.setmaxatk(10);
-		p.setdodge(40);
-		break;
-	case 3:
-		p.setclass(RANGER);
-		p.setmaxhp(30);
-		p.setmaxsp(5);
-		p.setminatk(13);
-		p.setmaxatk(18);
-		p.setturn(2);
-		p.setdodge(60);
-		break;
-	}
 }
 
 // Make enemy stats relative to player's current level

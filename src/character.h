@@ -1,11 +1,9 @@
 #ifndef CHARACTER_H
 #define CHARACTER_H
 #include <string>
+#include "main.h"
 
 using std::string;
-
-enum class_system {WARRIOR, MAGE, RANGER, ENEMY};
-enum location {OUTSIDE, PUB};
 
 class character
 {
@@ -51,11 +49,11 @@ class character
 		void addgold(unsigned int g) {gold += g;};
 
 	private:
-		string name;
-		enum class_system type;
-		enum location loc;
 		unsigned short maxhp, hp, maxsp, sp, maxatk, minatk, def, maxexp, exp;
 		unsigned char turn, level, dodge;
 		unsigned int gold;
+		enum class_system type;
+		enum location loc;
+		string name;
 };
 #endif
