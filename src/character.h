@@ -10,22 +10,22 @@ class character
 	public:
 		character();
 
-		string getname() const {return(name);};
-		unsigned short getmaxhp() const {return(maxhp);};
-		unsigned short gethp() const {return(hp);};
-		unsigned short getmaxsp() const {return(maxsp);};
-		unsigned short getsp() const {return(sp);};
-		unsigned short getminatk() const {return(minatk);};
-		unsigned short getmaxatk() const {return(maxatk);};
-		unsigned short getexp() const {return(exp);};
-		unsigned short getmaxexp() const {return(maxexp);};
-		unsigned char getlevel() const {return(level);};
-		unsigned char getturn() const {return(turn);};
-		unsigned char getdodge() const {return(dodge);};
-		unsigned int getgold() const {return(gold);};
+		string getname() const {return (name);};
+		unsigned short getmaxhp() const {return (maxhp);};
+		unsigned short gethp() const {return (hp);};
+		unsigned short getmaxsp() const {return (maxsp);};
+		unsigned short getsp() const {return (sp);};
+		unsigned short getminatk() const {return (minatk);};
+		unsigned short getmaxatk() const {return (maxatk);};
+		unsigned short getexp() const {return (exp);};
+		unsigned short getmaxexp() const {return (maxexp);};
+		unsigned char getlevel() const {return (level);};
+		unsigned char getturn() const {return (turn);};
+		unsigned char getdodge() const {return (dodge);};
+		unsigned int getgold() const {return (gold);};
 		string getstringclass() const;
-		enum location getlocation() const {return(loc);};
-		enum class_system getclass() const {return(type);};
+		enum location getlocation() const {return (loc);};
+		enum class_system getclass() const {return (type);};
 
 		void setname(const string &n) {name = n;};
 		void setmaxhp(const unsigned short h) {maxhp = hp = h;};

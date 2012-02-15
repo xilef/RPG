@@ -1,13 +1,11 @@
 #include "skill.h"
 
-skill::skill(unsigned short h, unsigned short s, unsigned short a,
-				unsigned short d, unsigned short e,
-				unsigned char t, unsigned char n,
-				unsigned char dd, unsigned char l,
-				unsigned short dm, unsigned short sp,
-				string nm, string desc)
+skill::skill(short h, short s, short a, short d, short e,
+				char t, char n, char dd, char l, short idm,
+				short cdm, short sp, enum skill_type st, enum class_system cs,
+				string nm, string desc, skill* sk)
 	: hp(h), sp(s), atk(a), def(d), expgain(e), turn(t), numatk(n),
-		dodge(dd), level(l), damage(dm), spcost(sp), type(PASSIVE),
-		name(nm), description(desc)
+		dodge(dd), level(l), init_damage(idm), cons_damage(cdm), spcost(sp),
+		sk_type(st), sk_class(cs), name(nm), description(desc), nextlevel(sk)
 {
 }

@@ -54,6 +54,7 @@ void init()
 	int choice;
 	string name;
 
+	init_skills();
 	running = true;
 	player.setlocation(PUB);
 	cout << "You wake up with a headache trying to remember eveything..." << endl;
@@ -113,7 +114,19 @@ void change_class(character &p, int choice)
 
 void init_skills()
 {
+	skill* sk;
+	// Warrior skills
 
+	// Mage skills
+	sk = new skill(0, 0, 0, 0, 0, 0, 0, 0, 0, 150, 25, 10,
+				ACTIVE, MAGE, "Hell Fire",
+				"Burn your target with an incredible flame and damage for the next few turns.");
+	skill_list.push_back(*sk);
+	
+	sk = new skill(0, 0, 0, 0, 0, 0, 0, 0, 0, 150, 25, 10,
+				ACTIVE, MAGE, "Frostbite", "Freeze target and reduce target damage.");
+	skill_list.push_back(*sk);
+	// Ranger skills
 }
 void cleanup()
 {

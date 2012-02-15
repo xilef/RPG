@@ -16,23 +16,23 @@ character::character()
 string character::getstringclass() const
 {
 	if (type == WARRIOR)
-		return("Warrior");
+		return ("Warrior");
 	else if (type == MAGE)
-		return("Mage");
+		return ("Mage");
 	else if (type == RANGER)
-		return("Ranger");
+		return ("Ranger");
 	else if (type == ENEMY)
-		return("Enemy");
+		return ("Enemy");
 	else
-		return("Unknown");
+		return ("Unknown");
 }
 
 bool character::isdead() const
 {
 	if (hp == 0)
-		return(true);
+		return (true);
 
-	return(false);
+	return (false);
 }
 
 void character::attack(character &e)
