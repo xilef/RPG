@@ -1,1 +1,9 @@
 Text based RPG
+written by Felix Isaac Palomares
+All help appreciated. You can contact me at felixisaacp(at)gmail(dot)com.
+
+A text based rpg with a turn based battle system, skills and item system.
+No storyline involved since I am not creative in that aspect.
+Currently only the battle system is working as I am still designing the others.
+
+Future plan is to incorporate a 2d graphics into it using SDL.
