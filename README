@@ -2,8 +2,17 @@ Text based RPG
 written by Felix Isaac Palomares
 All help appreciated. You can contact me at felixisaacp(at)gmail(dot)com.
 
-A text based rpg with a turn based battle system, skills and item system.
 No storyline involved since I am not creative in that aspect.
-Currently only the battle system is working as I am still designing the others.
-
 Future plan is to incorporate a 2d graphics into it using SDL.
+
+Current features:
+3 different classes: Warrior, Mage or Ranger.
+Turn based battle system, similar to Pokemon.
+Enemy difficulty relative to your character's level.
+
+In-development:
+Skills system. Up to 5 stackable mods for the player and/or enemy. Passive skills are excluded from this count.
+
+Future developments:
+Items.
+2D graphics.
