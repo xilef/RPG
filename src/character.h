@@ -1,9 +1,12 @@
 #ifndef CHARACTER_H
 #define CHARACTER_H
 #include <string>
+#include <list>
 #include "main.h"
+#include "skill.h"
 
 using std::string;
+using std::list;
 
 class character
 {
@@ -12,36 +15,40 @@ class character
 
 		string getname() const {return (name);};
 		unsigned short getmaxhp() const {return (maxhp);};
-		unsigned short gethp() const {return (hp);};
+		unsigned short gethp() const {return (curr_hp);};
 		unsigned short getmaxsp() const {return (maxsp);};
-		unsigned short getsp() const {return (sp);};
+		unsigned short getsp() const {return (curr_sp);};
 		unsigned short getminatk() const {return (minatk);};
 		unsigned short getmaxatk() const {return (maxatk);};
 		unsigned short getexp() const {return (exp);};
 		unsigned short getmaxexp() const {return (maxexp);};
+		unsigned short getdodge() const {return (dodge);};
 		unsigned char getlevel() const {return (level);};
 		unsigned char getturn() const {return (turn);};
-		unsigned char getdodge() const {return (dodge);};
 		unsigned int getgold() const {return (gold);};
 		string getstringclass() const;
 		enum location getlocation() const {return (loc);};
 		enum class_system getclass() const {return (type);};
+		list<skill> getskilllist() const {return (skill_list);};
 
 		void setname(const string &n) {name = n;};
-		void setmaxhp(const unsigned short h) {maxhp = hp = h;};
-		void setmaxsp(const unsigned short s) {maxsp = sp = s;};
+		void setmaxhp(const unsigned short h) {maxhp = curr_hp = h;};
+		void setmaxsp(const unsigned short s) {maxsp = curr_sp = s;};
 		void setminatk(const unsigned short min) {minatk = min;};
 		void setmaxatk(const unsigned short max) {maxatk = max;};
 		void setmaxexp(const unsigned short maxep) {maxexp = maxep;};
+		void setdodge(const unsigned short d) {dodge = d;};
 		void setclass(const enum class_system &c) {type = c;};
 		void setlocation(const enum location &l) {loc = l;};
 		void setlevel(const unsigned char l) {level = l;};
 		void setturn(const unsigned char t) {turn = t;};
-		void setdodge(const unsigned char d) {dodge = d;};
 		void setgold(const unsigned int g) {gold = g;};
 
 		void heal(const unsigned short h);
 		void attack(character &e);
+		void useskill(skill &sk, character &e);
+		void applymods(mods &mod);
+		void removemods(unsigned char mod_num);
 		void receivedamage(const unsigned short damage);
 		bool levelup(const short ex);
 		bool isdead() const;
@@ -49,11 +56,15 @@ class character
 		void addgold(unsigned int g) {gold += g;};
 
 	private:
-		unsigned short maxhp, hp, maxsp, sp, maxatk, minatk, def, maxexp, exp;
-		unsigned char turn, level, dodge;
+		unsigned short base_maxhp, base_maxsp, base_maxatk, base_minatk, base_def, base_dodge;
+		unsigned short curr_hp, curr_sp, maxhp, maxsp, maxatk, minatk, curr_def, dodge;
+		unsigned short maxexp, exp;
+		unsigned char turn, level, mods_count;
 		unsigned int gold;
 		enum class_system type;
 		enum location loc;
+		struct mods current_mods[5];
+		list<skill> skill_list;
 		string name;
 };
 #endif

@@ -1,11 +1,9 @@
 #include "skill.h"
 
-skill::skill(short h, short s, short a, short d, short e,
-				char t, char n, char dd, char l, short idm,
-				short cdm, short sp, enum skill_type st, enum class_system cs,
-				string nm, string desc, skill* sk)
-	: hp(h), sp(s), atk(a), def(d), expgain(e), turn(t), numatk(n),
-		dodge(dd), level(l), init_damage(idm), cons_damage(cdm), spcost(sp),
-		sk_type(st), sk_class(cs), name(nm), description(desc), nextlevel(sk)
+skill::skill(struct mods& p, struct mods& e
+				unsigned short idm, unsigned short cdm, unsigned short sp,
+				enum skill_type st, string nm, string desc, skill* sk = NULL);
+	: pl_mods(p), en_mods(e), init_damage(idm), cons_damage(cdm), spcost(sp),
+		sk_type(st), name(nm), description(desc), nextlevel(sk)
 {
 }

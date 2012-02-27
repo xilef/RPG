@@ -25,4 +25,11 @@
 enum class_system {WARRIOR, MAGE, RANGER, ENEMY};
 enum location {OUTSIDE, PUB};
 enum skill_type {ACTIVE, PASSIVE};
+
+struct mods
+{
+	unsigned short cons_damage;
+	short hp, sp, atk, expgain;
+	unsigned char turn, numatk, turn_count, dodge, level;
+};
 #endif

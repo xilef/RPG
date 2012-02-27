@@ -1,11 +1,15 @@
 // A very simple Text based RPG
 // written by Felix Isaac Palomares
+//
+// TODO:
+// 		Skill usage in the main game
+
 #include "main.h"
 #include "character.h"
 #include "skill.h"
 #include <iostream>
 #include <string>
-#include <list>
+#include <map>
 #include <stdlib.h>
 #include <limits>
 
@@ -13,7 +17,7 @@ using namespace::std;
 
 bool running;
 character player;
-list<skill> skill_list;
+map<class_system, skill> skill_list;
 
 void init();
 void change_class(character &p, int choice);
@@ -35,11 +39,9 @@ int main()
 	while (running) {
 		switch (player.getlocation()) {
 		case PUB:
-			cout << "You are in the pub" << endl;
 			show_pub_menu();
 			break;
 		case OUTSIDE:
-			cout << "You are outside exploring" << endl;
 			show_outside_menu();
 			break;
 		}
@@ -55,13 +57,15 @@ void init()
 	string name;
 
 	init_skills();
+
 	running = true;
 	player.setlocation(PUB);
+	player.setgold(500);
+
 	cout << "You wake up with a headache trying to remember eveything..." << endl;
 	cout << "What is your name?" << endl << ": ";
 	cin >> name;
 	player.setname(name);
-	player.setgold(500);
 
 	cout << endl;
 	cout << "1. Warrior" << endl;
@@ -76,6 +80,7 @@ void init()
 	// Setup initial player stats
 	change_class(player, choice);
 
+	// Seed for the random encounters, dodge and skill hit chance
 	srand(time(NULL));
 
 	cout << endl;
@@ -118,16 +123,19 @@ void init_skills()
 	// Warrior skills
 
 	// Mage skills
-	sk = new skill(0, 0, 0, 0, 0, 0, 0, 0, 0, 150, 25, 10,
+/*	sk = new skill(0, 0, 0, 0, 0, 0, 0, 0, 0, 150, 25, 10,
 				ACTIVE, MAGE, "Hell Fire",
 				"Burn your target with an incredible flame and damage for the next few turns.");
 	skill_list.push_back(*sk);
-	
-	sk = new skill(0, 0, 0, 0, 0, 0, 0, 0, 0, 150, 25, 10,
-				ACTIVE, MAGE, "Frostbite", "Freeze target and reduce target damage.");
+
+	sk = new skill(0, 0, -20, 0, 0, 0, 0, 0, 0, 100, 0, 7,
+				ACTIVE, MAGE, "Frostbite", "Freeze target and reduce target attack.");
 	skill_list.push_back(*sk);
+
 	// Ranger skills
+*/
 }
+
 void cleanup()
 {
 
@@ -159,6 +167,8 @@ void view_stats(character &ch)
 void show_pub_menu()
 {
 	int choice;
+
+	cout << "You are in the pub" << endl;
 	cout << EXPLORE_CHOICE << ". Explore outside" << endl;
 	cout << REST_CHOICE << ". Rest" << endl;
 	cout << BUY_CHOICE << ". Buy items" << endl;
@@ -202,6 +212,7 @@ void show_outside_menu()
 {
 	int choice;
 
+	cout << "You are outside exploring" << endl;
 	cout << MOVE_CHOICE << ". Move" << endl;
 	cout << PUB_CHOICE << ". Go back to the pub" << endl;
 	cout << STAT_CHOICE << ". Show stats" << endl;
@@ -294,6 +305,7 @@ void fight(character &enemy)
 				break;
 			}
 
+			// End player turn
 			pturn--;
 			if (eturn <= 0) 
 				eturn++;
@@ -303,6 +315,7 @@ void fight(character &enemy)
 
 			cin.get();
 
+			// End enemy's turn
 			eturn--;
 			if (pturn <= 0) 
 				pturn++;
@@ -326,12 +339,14 @@ void fight(character &enemy)
 		player.levelup(-(player.getexp() / 2));
 		player.setlocation(PUB);
 		player.heal(player.getmaxhp());
-	} else if (escape)
+	} else if (escape) {
 		cout << "Escaped!" << endl;
+	}
 
 	cout << endl;
 }
 
+// Increase stats for the player
 void increase_stats(character &p)
 {
 	unsigned short hp, sp, minatk, maxatk, maxexp;
