@@ -29,7 +29,6 @@ class character
 		string getstringclass() const;
 		enum location getlocation() const {return (loc);};
 		enum class_system getclass() const {return (type);};
-		list<skill> getskilllist() const {return (skill_list);};
 
 		void setname(const string &n) {name = n;};
 		void setmaxhp(const unsigned short h) {maxhp = curr_hp = h;};
@@ -47,8 +46,6 @@ class character
 		void heal(const unsigned short h);
 		void attack(character &e);
 		void useskill(skill &sk, character &e);
-		void applymods(mods &mod);
-		void removemods(unsigned char mod_num);
 		void receivedamage(const unsigned short damage);
 		bool levelup(const short ex);
 		bool isdead() const;
@@ -63,8 +60,6 @@ class character
 		unsigned int gold;
 		enum class_system type;
 		enum location loc;
-		struct mods current_mods[5];
-		list<skill> skill_list;
 		string name;
 };
 #endif

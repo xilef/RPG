@@ -1,25 +1,32 @@
 #ifndef SKILL_H
 #define SKILL_H
 #include <string>
+#include <list>
 #include "main.h"
 
 using std::string;
+using std::list;
 
 class skill
 {
 	public:
-		skill(struct mods& p, struct mods& e,
-				unsigned short idm, unsigned short cdm, unsigned short sp,
-				enum skill_type st, string nm, string desc, skill* sk = NULL);
+		skill(list<mods*>* pm, list<effects*>* pe, list<mods*>* em, list<effects*>* ee, unsigned short id,
+				unsigned short sp, enum skill_type t, string* n, string* desc, skill* sk);
+
+		unsigned short getdamage() const {return (init_damage);};
+
 	private:
 		// Player mods:
-		struct mods pl_mods;
+		list<mods*> pl_mods;
+		list<effects*> pl_effects;
 
 		// Enemy mods:
-		struct mods en_mods;
-		unsigned short init_damage, spcost;
+		list<mods*> en_mods;
+		list<effects*> en_effects;
 
-		enum skill_type sk_type;
+		unsigned short init_damage, sp_cost;
+
+		enum skill_type type;
 		string name, description;
 		skill* nextlevel;
 };

@@ -6,8 +6,8 @@ using std::cout;
 using std::endl;
 
 character::character()
-	: maxhp(1), maxsp(1), maxatk(1), minatk(1), curr_hp(1), curr_sp(1),
-		maxexp(100), exp(0), turn(1), level(1), mods_count(0), dodge(1), gold(1),
+	:  curr_hp(1), curr_sp(1), maxhp(1), maxsp(1), maxatk(1), minatk(1),
+		dodge(1), maxexp(100), exp(0), turn(1), level(1), mods_count(0), gold(1),
 		name("New Player")
 {
 
@@ -29,7 +29,7 @@ string character::getstringclass() const
 
 bool character::isdead() const
 {
-	if (hp == 0)
+	if (curr_hp == 0)
 		return (true);
 
 	return (false);
@@ -46,10 +46,10 @@ void character::receivedamage(const unsigned short damage)
 	int d = rand() % 100;
 	cout << name;
 	if (d > dodge) {
-		if (damage > hp)
-			hp = 0;
+		if (damage > curr_hp)
+			curr_hp = 0;
 		else
-			hp -= damage;
+			curr_hp -= damage;
 
 		cout << " took " << damage << " damage!" << endl;
 	}
@@ -75,9 +75,9 @@ bool character::levelup(const short ex)
 void character::heal(const unsigned short h)
 {
 	if (h >= maxhp)
-		hp = maxhp;
+		curr_hp = maxhp;
 	else
-		hp += h;
+		curr_hp += h;
 }
 
 bool character::usegold(unsigned int g)
@@ -93,28 +93,4 @@ bool character::usegold(unsigned int g)
 void character::useskill(skill &sk, character &e)
 {
 	e.receivedamage(sk.getdamage());
-}
-
-void character:applymods(mods &mod)
-{
-	maxhp += base_maxhp * (mod.hp / 100);
-	maxsp += base_maxsp * (mod.sp / 100);
-	minatk += base_minatk * (mod.atk / 100);
-	maxatk += base_maxatk * (mod.atk / 100);
-	dodge += base_dodge * (mod.dodge / 100);
-
-	current_mods[mod_count] = mod;
-	mod_count = (++mod_count) % 5;
-}
-
-void character::removemods(unsigned char mod_num)
-{
-	int x;
-	
-	for (x = mod_num; x < 4; x++)
-		current_mods[x] = current_mods[x + 1];
-
-	current_mods[4] = NULL;
-
-	mod_count = (--mod_count) % 5;
 }

@@ -25,11 +25,20 @@
 enum class_system {WARRIOR, MAGE, RANGER, ENEMY};
 enum location {OUTSIDE, PUB};
 enum skill_type {ACTIVE, PASSIVE};
+enum stats {HP, ATK, DODGE};
+enum effect {CONSECUTIVE_DAMAGE, NUM_ATK, KNOCKBACK, HP_DRAIN, CRITICAL};
 
-struct mods
+typedef struct
 {
-	unsigned short cons_damage;
-	short hp, sp, atk, expgain;
-	unsigned char turn, numatk, turn_count, dodge, level;
-};
+	enum stats stat;
+	unsigned char val, turns, chance;
+} mods;
+
+
+typedef struct
+{
+	enum effect eff;
+	unsigned char val, turns, chance;
+} effects;
+
 #endif
