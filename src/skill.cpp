@@ -2,19 +2,10 @@
 
 skill::skill(list<mods*>* pm, list<effects*>* pe, list<mods*>* em, list<effects*>* ee, unsigned short id,
 				unsigned short sp, enum skill_type t, enum class_system c, string* n, string* desc, skill* sk)
-			:init_damage(id), sp_cost(sp), type(t), cs(c), name(*n), description(*desc), nextlevel(sk)
+			:pl_mods(pm), pl_effects(pe), en_mods(em), en_effects(ee),
+				init_damage(id), sp_cost(sp), type(t), cs(c), name(*n), description(*desc), nextlevel(sk)
 {
-	if (pm != NULL)
-		pl_mods = pm;
 
-	if (pe != NULL)
-		pl_effects = pe;
-
-	if (em != NULL)
-		en_mods = em;
-
-	if (ee != NULL)
-		en_effects = ee;
 }
 
 skill::~skill()
@@ -57,4 +48,7 @@ skill::~skill()
 		}
 		delete en_effects;
 	}
+	
+	if (nextlevel != NULL)
+		delete nextlevel;
 }

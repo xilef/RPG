@@ -2,7 +2,6 @@
 // written by Felix Isaac Palomares
 //
 // TODO:
-//		Memory leaks
 // 		Skill usage in the main game
 
 #include "main.h"
@@ -120,36 +119,44 @@ void change_class(character &p, int choice)
 
 void init_skills()
 {
-	skill* sk = NULL;
+	skill* sk1, * sk2, * sk3;
 	effects* temp_epl, * temp_een;
 	mods* temp_mpl, * temp_men;
 	string temp_name, temp_desc;
 	list<mods*>* temp_pl_mods, * temp_en_mods;
 	list<effects*>* temp_pl_effects, * temp_en_effects;
 
-	temp_epl = NULL;
-	temp_een = NULL;
-	temp_mpl = NULL;
-	temp_men = NULL;
-	temp_pl_mods = NULL;
-	temp_en_mods = NULL;
-	temp_pl_effects = NULL;
-	temp_en_effects = NULL;
-	
 	// Warrior skills
 
 	// Mage skills
 	//	Hell Fire
-	//	init damage: 150
-	//	effect:
-	//	consecutive damage: 25
-	//	turns: 1
+	//	Level 1:
+	//		init damage: 150
+	//		sp cost: 10
+	//		effect:
+	//			consecutive damage: 25
+	//			turns: 1
+	//	Level 2:
+	//		init damage: 250
+	//		sp cost: 20
+	//		effect:
+	//			consecutive damage: 25
+	//			turns: 2
+	//	Level 3:
+	//		init damage: 350
+	//		sp cost: 30
+	//		effect:
+	//			consecutive damage: 35
+	//			turns: 3
 
+	// Level 3
+	temp_name = "Hell Fire";
+	temp_desc = "Burn your target with a incredible flame, the target recieve 100 damage and another 30 damage for the next 3 turns.";
 	temp_epl = NULL;
 	temp_een = new effects();
 	temp_een->eff = CONSECUTIVE_DAMAGE;
-	temp_een->val = 5;
-	temp_een->turns = 1;
+	temp_een->val = 30;
+	temp_een->turns = 3;
 	temp_een->chance = 100;
 	temp_mpl = NULL;
 	temp_men = NULL;
@@ -159,17 +166,190 @@ void init_skills()
 	temp_pl_effects = NULL;
 	temp_en_effects = new list<effects*>;
 	temp_en_effects->push_back(temp_een);
-	//temp_name = new string("Hell Fire");
-	//temp_desc = new string("Burn your target with a incredible flame, the target recieve 150 damage and another 25 damages for the next time.");
-	temp_name = "Hell Fire";
-	temp_desc = "Burn your target with a incredible flame, the target recieve 150 damage and another 25 damages for the next time.";
 
-	//	skill(list<mods*>* pm, list<effects*>* pe, list<mods*>* em, list<effects*>* ee, unsigned short id,
-	//			unsigned short sp, enum skill_type t, enum class_system c, string* n, string* desc, skill* sk);
-	sk = new skill(temp_pl_mods, temp_pl_effects, temp_en_mods, temp_en_effects, 20, 5, ACTIVE, MAGE,
+	sk3 = new skill(temp_pl_mods, temp_pl_effects, temp_en_mods, temp_en_effects, 100, 35, ACTIVE, MAGE,
 					&temp_name, &temp_desc, NULL);
 
-	skill_list["Hell Fire"] = sk;
+	// Level 2
+	temp_desc = "Burn your target with a incredible flame, the target recieve 50 damage and another 20 damage for the next 2 turns.";
+	temp_een = new effects();
+	temp_een->eff = CONSECUTIVE_DAMAGE;
+	temp_een->val = 20;
+	temp_een->turns = 2;
+	temp_een->chance = 100;
+	temp_en_effects = new list<effects*>;
+	temp_en_effects->push_back(temp_een);
+
+	sk2 = new skill(temp_pl_mods, temp_pl_effects, temp_en_mods, temp_en_effects, 50, 25, ACTIVE, MAGE,
+					&temp_name, &temp_desc, sk3);
+
+	// Level 1
+	temp_desc = "Burn your target with a incredible flame, the target recieve 20 damage and another 10 damage for the next turn.";
+	temp_een = new effects();
+	temp_een->eff = CONSECUTIVE_DAMAGE;
+	temp_een->val = 10;
+	temp_een->turns = 1;
+	temp_een->chance = 100;
+	temp_en_effects = new list<effects*>;
+	temp_en_effects->push_back(temp_een);
+
+	sk1 = new skill(temp_pl_mods, temp_pl_effects, temp_en_mods, temp_en_effects, 20, 15, ACTIVE, MAGE,
+					&temp_name, &temp_desc, sk2);
+
+	skill_list["Hell Fire"] = sk1;
+
+	//	Frostbite
+	//	Level 1:
+	//		init damage: 10
+	//		sp cost: 5
+	//		mods:
+	//			enemy atk: 20%
+	//			turns: 1
+	//	Level 2:
+	//		init damage: 50
+	//		sp cost: 20
+	//		mods:
+	//			enemy atk: 30%
+	//			turns: 1
+	//	Level 3:
+	//		init damage: 150
+	//		sp cost: 50
+	//		mods:
+	//			enemy atk: 60%
+	//			turns: 1
+
+	// Level 3
+	temp_name = "Frostbite";
+	temp_desc = "Freeze your target dealing 150 damage and the target attack will be reduced by 60% in the next turn.";
+	temp_epl = NULL;
+	temp_een = NULL;
+	temp_mpl = NULL;
+	temp_men = new mods();
+	temp_men->stat = ATK;
+	temp_men->val = 60;
+	temp_men->turns = 1;
+	temp_men->chance = 100;
+
+	temp_pl_mods = NULL;
+	temp_en_mods = new list<mods*>;
+	temp_en_mods->push_back(temp_men);
+	temp_pl_effects = NULL;
+	temp_en_effects = NULL;
+
+	sk3 = new skill(temp_pl_mods, temp_pl_effects, temp_en_mods, temp_en_effects, 150, 50, ACTIVE, MAGE,
+					&temp_name, &temp_desc, NULL);
+
+	// Level 2
+	temp_desc = "Freeze your target dealing 50 damage and the target attack will be reduced by 30% in the next turn.";
+	temp_men = new mods();
+	temp_men->stat = ATK;
+	temp_men->val = 30;
+	temp_men->turns = 1;
+	temp_men->chance = 100;
+	temp_en_mods = new list<mods*>;
+	temp_en_mods->push_back(temp_men);
+
+	sk2 = new skill(temp_pl_mods, temp_pl_effects, temp_en_mods, temp_en_effects, 50, 20, ACTIVE, MAGE,
+					&temp_name, &temp_desc, sk3);
+
+	// Level 1
+	temp_desc = "Freeze your target dealing 10 damage and the target attack will be reduced by 20% in the next turn.";
+	temp_men = new mods();
+	temp_men->stat = ATK;
+	temp_men->val = 20;
+	temp_men->turns = 1;
+	temp_men->chance = 100;
+	temp_en_mods = new list<mods*>;
+	temp_en_mods->push_back(temp_men);
+
+	sk1 = new skill(temp_pl_mods, temp_pl_effects, temp_en_mods, temp_en_effects, 10, 5, ACTIVE, MAGE,
+					&temp_name, &temp_desc, sk2);
+
+	skill_list["Frostbite"] = sk1;
+
+	//	Thunder Burst
+	//	Level 1:
+	//		init damage: 20
+	//		sp cost: 5
+	//		effect:
+	//			stun/knockback: 1
+	//			chance: 20%
+	//			turns: 0
+	//	Level 2:
+	//		init damage: 75
+	//		sp cost: 20
+	//		effect:
+	//			stun/knockback: 1
+	//			chance: 35%
+	//			turns: 0
+	//	Level 3:
+	//		init damage: 175
+	//		sp cost: 50
+	//		effect:
+	//			stun/knockback: 1
+	//			chance: 50%
+	//			turns: 0
+	//
+	//			hp drain: 35%
+	//			chance: 50%
+	//			turn: 0
+
+	// Level 3
+	temp_name = "Thunder Burst";
+	temp_desc = "Call the force of thunder and lightning to hit the target dealing 175 damage, 50% chance of stunning the target and 50% chance of draining 35% of target's max hp.";
+	temp_epl = NULL;
+	temp_een = new effects();
+	temp_een->eff = KNOCKBACK;
+	temp_een->val = 1;
+	temp_een->turns = 0;
+	temp_een->chance = 50;
+	temp_mpl = NULL;
+	temp_men = NULL;
+
+	temp_pl_mods = NULL;
+	temp_en_mods = NULL;
+	temp_pl_effects = NULL;
+	temp_en_effects = new list<effects*>;
+	temp_en_effects->push_back(temp_een);
+	
+	temp_een = new effects();
+	temp_een->eff = HP_DRAIN;
+	temp_een->val = 35;
+	temp_een->turns = 0;
+	temp_een->chance = 50;
+	temp_en_effects->push_back(temp_een);
+
+	sk3 = new skill(temp_pl_mods, temp_pl_effects, temp_en_mods, temp_en_effects, 175, 50, ACTIVE, MAGE,
+					&temp_name, &temp_desc, NULL);
+
+	// Level 2
+	temp_desc = "Call the force of thunder and lightning to hit the target dealing 75 damage, 35% chance of stunning the target.";
+	temp_een = new effects();
+	temp_een->eff = KNOCKBACK;
+	temp_een->val = 1;
+	temp_een->turns = 0;
+	temp_een->chance = 35;
+	temp_en_effects = new list<effects*>;
+	temp_en_effects->push_back(temp_een);
+
+	sk2 = new skill(temp_pl_mods, temp_pl_effects, temp_en_mods, temp_en_effects, 75, 20, ACTIVE, MAGE,
+					&temp_name, &temp_desc, sk3);
+
+	// Level 1
+	temp_desc = "Call the force of thunder and lightning to hit the target dealing 20 damage, 20% chance of stunning the target.";
+	temp_een = new effects();
+	temp_een->eff = KNOCKBACK;
+	temp_een->val = 1;
+	temp_een->turns = 0;
+	temp_een->chance = 20;
+	temp_en_effects = new list<effects*>;
+	temp_en_effects->push_back(temp_een);
+
+	sk1 = new skill(temp_pl_mods, temp_pl_effects, temp_en_mods, temp_en_effects, 20, 5, ACTIVE, MAGE,
+					&temp_name, &temp_desc, sk2);
+
+	skill_list["Thunder Burst"] = sk1;
+
 	// Ranger skills
 
 }
@@ -179,10 +359,10 @@ void cleanup()
 	map<string, skill*>::iterator it;
 	skill* sk;
 
-	for (it = skill_list.begin(); it != skill_list.end(); it++) {
+/*	for (it = skill_list.begin(); it != skill_list.end(); it++) {
 		sk = (*it).second;
 		delete sk;
-	}
+	}*/
 	skill_list.clear();
 }
 
