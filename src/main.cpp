@@ -2,6 +2,7 @@
 // written by Felix Isaac Palomares
 //
 // TODO:
+//		Memory leaks
 // 		Skill usage in the main game
 
 #include "main.h"
@@ -17,7 +18,7 @@ using namespace::std;
 
 bool running;
 character player;
-map<class_system, skill> skill_list;
+map<string, skill*> skill_list;
 
 void init();
 void change_class(character &p, int choice);
@@ -119,13 +120,22 @@ void change_class(character &p, int choice)
 
 void init_skills()
 {
-	skill* sk;
+	skill* sk = NULL;
 	effects* temp_epl, * temp_een;
 	mods* temp_mpl, * temp_men;
-	string* temp_name, * temp_desc;
+	string temp_name, temp_desc;
 	list<mods*>* temp_pl_mods, * temp_en_mods;
 	list<effects*>* temp_pl_effects, * temp_en_effects;
 
+	temp_epl = NULL;
+	temp_een = NULL;
+	temp_mpl = NULL;
+	temp_men = NULL;
+	temp_pl_mods = NULL;
+	temp_en_mods = NULL;
+	temp_pl_effects = NULL;
+	temp_en_effects = NULL;
+	
 	// Warrior skills
 
 	// Mage skills
@@ -135,28 +145,45 @@ void init_skills()
 	//	consecutive damage: 25
 	//	turns: 1
 
+	temp_epl = NULL;
 	temp_een = new effects();
 	temp_een->eff = CONSECUTIVE_DAMAGE;
-	temp_een->val = 25;
+	temp_een->val = 5;
 	temp_een->turns = 1;
 	temp_een->chance = 100;
-	temp_pl_effects = new list<effects*>;
-	temp_pl_effects->push_back(temp_een);
-	temp_name = new string("Hell Fire");
-	temp_desc = new string("Burn your target with a incredible flame, the target recieve 150 damage and another 25 damages for the next time.");
+	temp_mpl = NULL;
+	temp_men = NULL;
 
-	// 		skill(mods pm, effects pe, mods em, effects ee, unsigned short id,
-	//			unsigned short sp, enum skill_type t, string n, string desc, skill* sk = NULL);
-	sk = new skill(NULL, NULL, NULL, temp_pl_effects, (unsigned short)150, (unsigned short)10, ACTIVE,
-					temp_name, temp_desc, NULL);
+	temp_pl_mods = NULL;
+	temp_en_mods = NULL;
+	temp_pl_effects = NULL;
+	temp_en_effects = new list<effects*>;
+	temp_en_effects->push_back(temp_een);
+	//temp_name = new string("Hell Fire");
+	//temp_desc = new string("Burn your target with a incredible flame, the target recieve 150 damage and another 25 damages for the next time.");
+	temp_name = "Hell Fire";
+	temp_desc = "Burn your target with a incredible flame, the target recieve 150 damage and another 25 damages for the next time.";
 
+	//	skill(list<mods*>* pm, list<effects*>* pe, list<mods*>* em, list<effects*>* ee, unsigned short id,
+	//			unsigned short sp, enum skill_type t, enum class_system c, string* n, string* desc, skill* sk);
+	sk = new skill(temp_pl_mods, temp_pl_effects, temp_en_mods, temp_en_effects, 20, 5, ACTIVE, MAGE,
+					&temp_name, &temp_desc, NULL);
+
+	skill_list["Hell Fire"] = sk;
 	// Ranger skills
 
 }
 
 void cleanup()
 {
+	map<string, skill*>::iterator it;
+	skill* sk;
 
+	for (it = skill_list.begin(); it != skill_list.end(); it++) {
+		sk = (*it).second;
+		delete sk;
+	}
+	skill_list.clear();
 }
 
 void view_full_stats(character &ch)
