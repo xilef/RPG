@@ -7,7 +7,7 @@ using std::endl;
 
 character::character()
 	:  curr_hp(1), curr_sp(1), maxhp(1), maxsp(1), maxatk(1), minatk(1),
-		dodge(1), maxexp(100), exp(0), turn(1), level(1), mods_count(0), gold(1),
+		dodge(1), maxexp(100), exp(0), skill_pt(1), turn(1), level(1), mods_count(0), gold(1),
 		name("New Player")
 {
 

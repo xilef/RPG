@@ -28,17 +28,19 @@ enum skill_type {ACTIVE, PASSIVE};
 enum stats {HP, ATK, DODGE};
 enum effect {CONSECUTIVE_DAMAGE, NUM_ATK, KNOCKBACK, HP_DRAIN, CRITICAL};
 
-typedef struct
+typedef struct _mods
 {
 	enum stats stat;
 	unsigned char val, turns, chance;
+	_mods(enum stats s, unsigned char v, unsigned char t, unsigned char ch): stat(s), val(v), turns(t), chance(ch) {};
 } mods;
 
 
-typedef struct
+typedef struct _effects
 {
 	enum effect eff;
 	unsigned char val, turns, chance;
+	_effects(enum effect e, unsigned char v, unsigned char t, unsigned char ch): eff(e), val(v), turns(t), chance(ch) {};
 } effects;
 
 #endif

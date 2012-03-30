@@ -56,10 +56,11 @@ class character
 		unsigned short base_maxhp, base_maxsp, base_maxatk, base_minatk, base_def, base_dodge;
 		unsigned short curr_hp, curr_sp, maxhp, maxsp, maxatk, minatk, curr_def, dodge;
 		unsigned short maxexp, exp;
-		unsigned char turn, level, mods_count;
+		unsigned char skill_pt, turn, level, mods_count;
 		unsigned int gold;
 		enum class_system type;
 		enum location loc;
 		string name;
+		list<skill*> skills;
 };
 #endif

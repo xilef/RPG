@@ -48,7 +48,7 @@ skill::~skill()
 		}
 		delete en_effects;
 	}
-	
+
 	if (nextlevel != NULL)
 		delete nextlevel;
 }
