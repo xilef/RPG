@@ -1,9 +1,9 @@
 #include "skill.h"
 
 skill::skill(list<mods*>* pm, list<effects*>* pe, list<mods*>* em, list<effects*>* ee, unsigned short id,
-				unsigned short sp, enum skill_type t, enum class_system c, string* n, string* desc, skill* sk)
-			:pl_mods(pm), pl_effects(pe), en_mods(em), en_effects(ee),
-				init_damage(id), sp_cost(sp), type(t), cs(c), name(*n), description(*desc), nextlevel(sk)
+				unsigned short sp, unsigned char l, enum skillType t, enum classSystem c, string* n, string* desc, skill* sk)
+			:playerMods(pm), playerEffects(pe), enemyMods(em), enemyEffects(ee),
+				initDamage(id), spCost(sp), level(l), type(t), cs(c), name(*n), description(*desc), nextLevel(sk)
 {
 
 }
@@ -13,42 +13,42 @@ skill::~skill()
 	mods* m;
 	effects* e;
 
-	if (pl_mods != NULL) {
-		while (!pl_mods->empty()) {
-			m = pl_mods->front();
+	if (playerMods != NULL) {
+		while (!playerMods->empty()) {
+			m = playerMods->front();
 			delete m;
-			pl_mods->pop_front();
+			playerMods->pop_front();
 		}
-		delete pl_mods;
+		delete playerMods;
 	}
 
-	if (en_mods != NULL) {
-		while (!en_mods->empty()) {
-			m = en_mods->front();
+	if (enemyMods != NULL) {
+		while (!enemyMods->empty()) {
+			m = enemyMods->front();
 			delete m;
-			en_mods->pop_front();
+			enemyMods->pop_front();
 		}
-		delete en_mods;
+		delete enemyMods;
 	}
 
-	if (pl_effects != NULL) {
-		while (!pl_effects->empty()) {
-			e = pl_effects->front();
+	if (playerEffects != NULL) {
+		while (!playerEffects->empty()) {
+			e = playerEffects->front();
 			delete e;
-			pl_effects->pop_front();
+			playerEffects->pop_front();
 		}
-		delete pl_effects;
+		delete playerEffects;
 	}
 
-	if (en_effects != NULL) {
-		while (!en_effects->empty()) {
-			e = en_effects->front();
+	if (enemyEffects != NULL) {
+		while (!enemyEffects->empty()) {
+			e = enemyEffects->front();
 			delete e;
-			en_effects->pop_front();
+			enemyEffects->pop_front();
 		}
-		delete en_effects;
+		delete enemyEffects;
 	}
 
-	if (nextlevel != NULL)
-		delete nextlevel;
+	if (nextLevel != NULL)
+		delete nextLevel;
 }

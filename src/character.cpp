@@ -1,19 +1,20 @@
 #include "character.h"
 #include <stdlib.h>
 #include <iostream>
+#include <climits>
 
 using std::cout;
 using std::endl;
 
 character::character()
-	:  curr_hp(1), curr_sp(1), maxhp(1), maxsp(1), maxatk(1), minatk(1),
-		dodge(1), maxexp(100), exp(0), skill_pt(1), turn(1), level(1), mods_count(0), gold(1),
+	:  currentHp(1), currentSp(1), maxHp(1), maxSp(1), maxAtk(1), minAtk(1),
+		dodge(1), maxExp(100), exp(0), skillPt(1), turn(1), level(1), gold(1),
 		name("New Player")
 {
 
 }
 
-string character::getstringclass() const
+string character::getStringClass() const
 {
 	if (type == WARRIOR)
 		return ("Warrior");
@@ -27,29 +28,26 @@ string character::getstringclass() const
 		return ("Unknown");
 }
 
-bool character::isdead() const
+bool character::isDead() const
 {
-	if (curr_hp == 0)
-		return (true);
-
-	return (false);
+	return (currentHp == 0);
 }
 
 void character::attack(character &e)
 {
-	int dmg = rand() % (maxatk - minatk) + minatk;
-	e.receivedamage(dmg);
+	int dmg = rand() % (maxAtk - minAtk) + minAtk;
+	e.receiveDamage(dmg);
 }
 
-void character::receivedamage(const unsigned short damage)
+void character::receiveDamage(const unsigned short damage)
 {
 	int d = rand() % 100;
 	cout << name;
 	if (d > dodge) {
-		if (damage > curr_hp)
-			curr_hp = 0;
+		if (damage > currentHp)
+			currentHp = 0;
 		else
-			curr_hp -= damage;
+			currentHp -= damage;
 
 		cout << " took " << damage << " damage!" << endl;
 	}
@@ -58,13 +56,13 @@ void character::receivedamage(const unsigned short damage)
 	}
 }
 
-bool character::levelup(const short ex)
+bool character::levelUp(const short ex)
 {
 	if (exp + ex < 0) {
 		exp = 0;
-	} else if (exp + ex >= maxexp) {
+	} else if (exp + ex >= maxExp) {
 		level++;
-		exp += ex - maxexp;
+		exp += ex - maxExp;
 		return (true);
 	} else {
 		exp += ex;
@@ -74,23 +72,25 @@ bool character::levelup(const short ex)
 
 void character::heal(const unsigned short h)
 {
-	if (h >= maxhp)
-		curr_hp = maxhp;
+	if (h >= maxHp)
+		currentHp = maxHp;
 	else
-		curr_hp += h;
+		currentHp += h;
 }
 
-bool character::usegold(unsigned int g)
+bool character::useGold(unsigned int g)
 {
-	if (g > gold)
+	if (g > gold) {
+		cout << "Not enough gold!" << endl;
 		return (false);
-	else
+	} else {
 		gold -= g;
+	}
 
 	return (true);
 }
 
 void character::useskill(skill &sk, character &e)
 {
-	e.receivedamage(sk.getdamage());
+	e.receiveDamage(sk.getDamage());
 }

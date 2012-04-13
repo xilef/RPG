@@ -7,7 +7,8 @@
 #define REST_CHOICE 2
 #define BUY_CHOICE 3
 #define STAT_CHOICE 4
-#define EXIT_CHOICE 5
+#define USE_SKILLPT 5
+#define EXIT_CHOICE 6
 
 // Outside menu choices
 #define MOVE_CHOICE 1
@@ -22,9 +23,9 @@
 #define ENEMY_CHANCE 60
 #define REST_COST 20
 
-enum class_system {WARRIOR, MAGE, RANGER, ENEMY};
+enum classSystem {WARRIOR, MAGE, RANGER, ENEMY};
 enum location {OUTSIDE, PUB};
-enum skill_type {ACTIVE, PASSIVE};
+enum skillType {ACTIVE, PASSIVE};
 enum stats {HP, ATK, DODGE};
 enum effect {CONSECUTIVE_DAMAGE, NUM_ATK, KNOCKBACK, HP_DRAIN, CRITICAL};
 

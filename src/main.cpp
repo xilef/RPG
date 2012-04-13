@@ -8,42 +8,45 @@
 #include "main.h"
 #include "character.h"
 #include "skill.h"
+#include "skillmanager.h"
 #include <iostream>
+#include <utility>
 #include <string>
-#include <map>
-#include <stdlib.h>
+#include <cstdlib>
+#include <cctype>
 #include <limits>
 
 using namespace::std;
 
 bool running;
 character player;
-map<string, skill*> skill_list;
+skillManager skillMan;
 
 void init();
-void init_class(character &p, int choice);
-void init_skills();
+void initPlayer(character &p, int choice);
+void initSkills();
+void useSkillPt(character &ch);
 void cleanup();
-void view_full_stats(const character &ch);
-void view_stats(const character &ch);
-void show_pub_menu();
-void show_outside_menu();
-void random_encounter();
+void viewFullStats(const character &ch);
+void viewBattleStats(const character &ch);
+void showPubMenu();
+void showOutsideMenu();
+void randomEncounter();
 void fight(character &enemy);
-void increase_stats(character &p);
-void make_enemy(character &e, const unsigned char level);
+void increaseStats(character &p);
+void makeEnemy(character &e, const unsigned char level);
 
 int main()
 {
 	init();
 
 	while (running) {
-		switch (player.getlocation()) {
+		switch (player.getLocation()) {
 		case PUB:
-			show_pub_menu();
+			showPubMenu();
 			break;
 		case OUTSIDE:
-			show_outside_menu();
+			showOutsideMenu();
 			break;
 		}
 	}
@@ -57,16 +60,16 @@ void init()
 	int choice;
 	string name;
 
-	init_skills();
+	initSkills();
 
 	running = true;
-	player.setlocation(PUB);
-	player.setgold(500);
+	player.setLocation(PUB);
+	player.setGold(500);
 
 	cout << "You wake up with a headache trying to remember eveything..." << endl;
 	cout << "What is your name?" << endl << ": ";
 	cin >> name;
-	player.setname(name);
+	player.setName(name);
 
 	cout << endl;
 	cout << "1. Warrior" << endl;
@@ -79,7 +82,8 @@ void init()
 	} while (choice < 1 || choice > 3);
 
 	// Setup initial player stats
-	init_class(player, choice);
+	initPlayer(player, choice);
+	useSkillPt(player);
 
 	// Seed for the random encounters, dodge and skill hit chance
 	srand(time(NULL));
@@ -87,45 +91,48 @@ void init()
 	cout << endl;
 }
 
-void init_class(character &p, int choice)
+void initPlayer(character &p, int choice)
 {
 	switch (choice) {
 	case 1:
-		p.setclass(WARRIOR);
-		p.setmaxhp(50);
-		p.setmaxsp(10);
-		p.setminatk(20);
-		p.setmaxatk(25);
-		p.setdodge(30);
+		p.setClass(WARRIOR);
+		p.setMaxHp(50);
+		p.setMaxSp(10);
+		p.setMinAtk(20);
+		p.setMaxAtk(25);
+		p.setDodge(30);
+		p.setSkill(skillMan.getSkillList(WARRIOR));
 		break;
 	case 2:
-		p.setclass(MAGE);
-		p.setmaxhp(20);
-		p.setmaxsp(30);
-		p.setminatk(5);
-		p.setmaxatk(10);
-		p.setdodge(40);
+		p.setClass(MAGE);
+		p.setMaxHp(20);
+		p.setMaxSp(30);
+		p.setMinAtk(5);
+		p.setMaxAtk(10);
+		p.setDodge(40);
+		p.setSkill(skillMan.getSkillList(MAGE));
 		break;
 	case 3:
-		p.setclass(RANGER);
-		p.setmaxhp(30);
-		p.setmaxsp(5);
-		p.setminatk(13);
-		p.setmaxatk(18);
-		p.setturn(2);
-		p.setdodge(60);
+		p.setClass(RANGER);
+		p.setMaxHp(30);
+		p.setMaxSp(5);
+		p.setMinAtk(13);
+		p.setMaxAtk(18);
+		p.setTurn(2);
+		p.setDodge(60);
+		p.setSkill(skillMan.getSkillList(RANGER));
 		break;
 	}
 }
 
-void init_skills()
+void initSkills()
 {
 	skill* sk0, * sk1, * sk2, * sk3;
-	effects* temp_epl, * temp_een;
-	mods* temp_mpl, * temp_men;
-	string temp_name, temp_desc;
-	list<mods*>* temp_pl_mods, * temp_en_mods;
-	list<effects*>* temp_pl_effects, * temp_en_effects;
+	effects* tempPlayerEffects, * tempEnemyEffects;
+	mods* tempPlayerMods, * tempEnemyMods;
+	string tempName, tempDescription;
+	list<mods*>* tempPlayerModsList, * tempEnemyModsList;
+	list<effects*>* tempPlayerEffectsList, * tempEnemyEffectsList;
 
 	// Warrior skills
 
@@ -150,41 +157,43 @@ void init_skills()
 	//			consecutive damage: 35
 	//			turns: 3
 	// Level 3
-	temp_name = "Hell Fire";
-	temp_desc = "Burn your target with a incredible flame, the target recieve 100 damage and another 30 damage for the next 3 turns.";
-	temp_epl = NULL;
-	temp_een = new effects(CONSECUTIVE_DAMAGE, 30, 3, 100);
-	temp_mpl = NULL;
-	temp_men = NULL;
+	tempName = "Hell Fire";
+	tempDescription = "Burn your target with a incredible flame, the target recieves 100 damage and another 30 damage for the next 3 turns.";
+	tempPlayerEffects = NULL;
+	tempEnemyEffects = new effects(CONSECUTIVE_DAMAGE, 30, 3, 100);
+	tempPlayerMods = NULL;
+	tempEnemyMods = NULL;
 
-	temp_pl_mods = NULL;
-	temp_en_mods = NULL;
-	temp_pl_effects = NULL;
-	temp_en_effects = new list<effects*>;
-	temp_en_effects->push_back(temp_een);
+	tempPlayerModsList = NULL;
+	tempEnemyModsList = NULL;
+	tempPlayerEffectsList = NULL;
+	tempEnemyEffectsList = new list<effects*>;
+	tempEnemyEffectsList->push_back(tempEnemyEffects);
 
-	sk3 = new skill(temp_pl_mods, temp_pl_effects, temp_en_mods, temp_en_effects, 100, 35, ACTIVE, MAGE,
-					&temp_name, &temp_desc, NULL);
+	sk3 = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 100, 35, 3, ACTIVE, MAGE,
+					&tempName, &tempDescription, NULL);
 
 	// Level 2
-	temp_desc = "Burn your target with a incredible flame, the target recieve 50 damage and another 20 damage for the next 2 turns.";
-	temp_een = new effects(CONSECUTIVE_DAMAGE, 20, 2, 100);
-	temp_en_effects = new list<effects*>;
-	temp_en_effects->push_back(temp_een);
+	tempDescription = "Burn your target with a incredible flame, the target recieves 50 damage and another 20 damage for the next 2 turns.";
+	tempEnemyEffects = new effects(CONSECUTIVE_DAMAGE, 20, 2, 100);
+	tempEnemyEffectsList = new list<effects*>;
+	tempEnemyEffectsList->push_back(tempEnemyEffects);
 
-	sk2 = new skill(temp_pl_mods, temp_pl_effects, temp_en_mods, temp_en_effects, 50, 25, ACTIVE, MAGE,
-					&temp_name, &temp_desc, sk3);
+	sk2 = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 50, 25, 2, ACTIVE, MAGE,
+					&tempName, &tempDescription, sk3);
 
 	// Level 1
-	temp_desc = "Burn your target with a incredible flame, the target recieve 20 damage and another 10 damage for the next turn.";
-	temp_een = new effects(CONSECUTIVE_DAMAGE, 10, 1, 100);
-	temp_en_effects = new list<effects*>;
-	temp_en_effects->push_back(temp_een);
+	tempDescription = "Burn your target with a incredible flame, the target recieves 20 damage and another 10 damage for the next turn.";
+	tempEnemyEffects = new effects(CONSECUTIVE_DAMAGE, 10, 1, 100);
+	tempEnemyEffectsList = new list<effects*>;
+	tempEnemyEffectsList->push_back(tempEnemyEffects);
 
-	sk1 = new skill(temp_pl_mods, temp_pl_effects, temp_en_mods, temp_en_effects, 20, 15, ACTIVE, MAGE,
-					&temp_name, &temp_desc, sk2);
+	sk1 = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 20, 15, 1, ACTIVE, MAGE,
+					&tempName, &tempDescription, sk2);
 
-	skill_list[temp_name] = sk1;
+	sk0 = new skill(NULL, NULL, NULL, NULL, 0, 0, 0, ACTIVE, MAGE, &tempName, &tempDescription, sk1);
+
+	skillMan.skillList[tempName] = sk0;
 
 	//	Frostbite
 	//	Level 1:
@@ -207,41 +216,43 @@ void init_skills()
 	//			turns: 1
 
 	// Level 3
-	temp_name = "Frostbite";
-	temp_desc = "Freeze your target dealing 150 damage and the target attack will be reduced by 60% in the next turn.";
-	temp_epl = NULL;
-	temp_een = NULL;
-	temp_mpl = NULL;
-	temp_men = new mods(ATK, 60, 1, 100);
+	tempName = "Frostbite";
+	tempDescription = "Freeze your target dealing 150 damage and the target attack will be reduced by 60% in the next turn.";
+	tempPlayerEffects = NULL;
+	tempEnemyEffects = NULL;
+	tempPlayerMods = NULL;
+	tempEnemyMods = new mods(ATK, 60, 1, 100);
 
-	temp_pl_mods = NULL;
-	temp_en_mods = new list<mods*>;
-	temp_en_mods->push_back(temp_men);
-	temp_pl_effects = NULL;
-	temp_en_effects = NULL;
+	tempPlayerModsList = NULL;
+	tempEnemyModsList = new list<mods*>;
+	tempEnemyModsList->push_back(tempEnemyMods);
+	tempPlayerEffectsList = NULL;
+	tempEnemyEffectsList = NULL;
 
-	sk3 = new skill(temp_pl_mods, temp_pl_effects, temp_en_mods, temp_en_effects, 150, 50, ACTIVE, MAGE,
-					&temp_name, &temp_desc, NULL);
+	sk3 = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 150, 50, 3, ACTIVE, MAGE,
+					&tempName, &tempDescription, NULL);
 
 	// Level 2
-	temp_desc = "Freeze your target dealing 50 damage and the target attack will be reduced by 30% in the next turn.";
-	temp_men = new mods(ATK, 30, 1, 100);
-	temp_en_mods = new list<mods*>;
-	temp_en_mods->push_back(temp_men);
+	tempDescription = "Freeze your target dealing 50 damage and the target attack will be reduced by 30% in the next turn.";
+	tempEnemyMods = new mods(ATK, 30, 1, 100);
+	tempEnemyModsList = new list<mods*>;
+	tempEnemyModsList->push_back(tempEnemyMods);
 
-	sk2 = new skill(temp_pl_mods, temp_pl_effects, temp_en_mods, temp_en_effects, 50, 20, ACTIVE, MAGE,
-					&temp_name, &temp_desc, sk3);
+	sk2 = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 50, 20, 2, ACTIVE, MAGE,
+					&tempName, &tempDescription, sk3);
 
 	// Level 1
-	temp_desc = "Freeze your target dealing 10 damage and the target attack will be reduced by 20% in the next turn.";
-	temp_men = new mods(ATK, 20, 1, 100);
-	temp_en_mods = new list<mods*>;
-	temp_en_mods->push_back(temp_men);
+	tempDescription = "Freeze your target dealing 10 damage and the target attack will be reduced by 20% in the next turn.";
+	tempEnemyMods = new mods(ATK, 20, 1, 100);
+	tempEnemyModsList = new list<mods*>;
+	tempEnemyModsList->push_back(tempEnemyMods);
 
-	sk1 = new skill(temp_pl_mods, temp_pl_effects, temp_en_mods, temp_en_effects, 10, 5, ACTIVE, MAGE,
-					&temp_name, &temp_desc, sk2);
+	sk1 = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 10, 5, 1, ACTIVE, MAGE,
+					&tempName, &tempDescription, sk2);
 
-	skill_list[temp_name] = sk1;
+	sk0 = new skill(NULL, NULL, NULL, NULL, 0, 0, 0, ACTIVE, MAGE, &tempName, &tempDescription, sk1);
+
+	skillMan.skillList[tempName] = sk0;
 
 	//	Thunder Burst
 	//	Level 1:
@@ -271,85 +282,131 @@ void init_skills()
 	//			turn: 0
 
 	// Level 3
-	temp_name = "Thunder Burst";
-	temp_desc = "Call the force of thunder and lightning to hit the target dealing 175 damage, 50% chance of stunning the target and 50% chance of draining 35% of target's max hp.";
-	temp_epl = NULL;
-	temp_een = new effects(KNOCKBACK, 1, 0, 50);
-	temp_mpl = NULL;
-	temp_men = NULL;
+	tempName = "Thunder Burst";
+	tempDescription = "Call the force of thunder and lightning to hit the target dealing 175 damage, 50% chance of stunning the target and 50% chance of draining 35% of target's max hp.";
+	tempPlayerEffects = NULL;
+	tempEnemyEffects = new effects(KNOCKBACK, 1, 0, 50);
+	tempPlayerMods = NULL;
+	tempEnemyMods = NULL;
 
-	temp_pl_mods = NULL;
-	temp_en_mods = NULL;
-	temp_pl_effects = NULL;
-	temp_en_effects = new list<effects*>;
-	temp_en_effects->push_back(temp_een);
+	tempPlayerModsList = NULL;
+	tempEnemyModsList = NULL;
+	tempPlayerEffectsList = NULL;
+	tempEnemyEffectsList = new list<effects*>;
+	tempEnemyEffectsList->push_back(tempEnemyEffects);
 
-	temp_een = new effects(HP_DRAIN, 35, 0, 50);
-	temp_en_effects->push_back(temp_een);
+	tempEnemyEffects = new effects(HP_DRAIN, 35, 0, 50);
+	tempEnemyEffectsList->push_back(tempEnemyEffects);
 
-	sk3 = new skill(temp_pl_mods, temp_pl_effects, temp_en_mods, temp_en_effects, 175, 50, ACTIVE, MAGE,
-					&temp_name, &temp_desc, NULL);
+	sk3 = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 175, 50, 3, ACTIVE, MAGE,
+					&tempName, &tempDescription, NULL);
 
 	// Level 2
-	temp_desc = "Call the force of thunder and lightning to hit the target dealing 75 damage, 35% chance of stunning the target.";
-	temp_een = new effects(KNOCKBACK, 1, 0, 35);
-	temp_en_effects = new list<effects*>;
-	temp_en_effects->push_back(temp_een);
+	tempDescription = "Call the force of thunder and lightning to hit the target dealing 75 damage, 35% chance of stunning the target.";
+	tempEnemyEffects = new effects(KNOCKBACK, 1, 0, 35);
+	tempEnemyEffectsList = new list<effects*>;
+	tempEnemyEffectsList->push_back(tempEnemyEffects);
 
-	sk2 = new skill(temp_pl_mods, temp_pl_effects, temp_en_mods, temp_en_effects, 75, 20, ACTIVE, MAGE,
-					&temp_name, &temp_desc, sk3);
+	sk2 = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 75, 20, 2, ACTIVE, MAGE,
+					&tempName, &tempDescription, sk3);
 
 	// Level 1
-	temp_desc = "Call the force of thunder and lightning to hit the target dealing 20 damage, 20% chance of stunning the target.";
-	temp_een = new effects(KNOCKBACK, 1, 0, 50);
-	temp_en_effects = new list<effects*>;
-	temp_en_effects->push_back(temp_een);
+	tempDescription = "Call the force of thunder and lightning to hit the target dealing 20 damage, 20% chance of stunning the target.";
+	tempEnemyEffects = new effects(KNOCKBACK, 1, 0, 50);
+	tempEnemyEffectsList = new list<effects*>;
+	tempEnemyEffectsList->push_back(tempEnemyEffects);
 
-	sk1 = new skill(temp_pl_mods, temp_pl_effects, temp_en_mods, temp_en_effects, 20, 5, ACTIVE, MAGE,
-					&temp_name, &temp_desc, sk2);
+	sk1 = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 20, 5, 1, ACTIVE, MAGE,
+					&tempName, &tempDescription, sk2);
 
-	skill_list[temp_name] = sk1;
+	sk0 = new skill(NULL, NULL, NULL, NULL, 0, 0, 0, ACTIVE, MAGE, &tempName, &tempDescription, sk1);
+
+	skillMan.skillList[tempName] = sk0;
 
 	// Ranger skills
 
 }
 
+void useSkillPt(character &ch)
+{
+	unsigned char pt = ch.getSkillPt();
+	unsigned char ans = 'Y';
+	int choice, x, size;
+	vector<pair<const string, skill*>*> skillList = ch.getSkillList();
+	vector<pair<const string, skill*>*>::iterator it;
+	size = skillList.size();
+
+	if (pt == 0) {
+		cout << "No Skill point to use!" << endl;
+	} else {
+		do {
+			for (it = skillList.begin(), x = 1; it != skillList.end(); it++, x++) {
+				cout << x << ": " << (*it)->second->getName() << " - " << (*it)->second->getDescription() << endl;
+			}
+			cout << "Which skill do you want to improve?" << endl;
+
+			do {
+				cout << ":";
+				cin >> choice;
+			} while (choice < 0 || choice > size);
+
+			cout << skillList[choice - 1]->second->getName() << " level-up!" << endl;
+			skillList[choice - 1]->second = skillList[choice - 1]->second->getNextLevel();	// To be changed
+			pt--;
+
+			if (pt > 0) {
+				cout << "Use more points? [Y/N]" << endl;
+				do {
+					cout << ":";
+					cin >> ans;
+				} while (toupper(ans) != 'Y' && toupper(ans) != 'N');
+			}
+		} while (toupper(ans) == 'Y' && pt > 0);
+	}
+
+	ch.setSkillPt(pt);
+}
+
 void cleanup()
 {
-	map<string, skill*>::iterator it;
-	skill* sk;
 
-	for (it = skill_list.begin(); it != skill_list.end(); it++) {
-		sk = (*it).second;
-		delete sk;
+}
+
+void viewFullStats(character &ch)
+{
+	vector<pair<const string, skill*>*> skillList = ch.getSkillList();
+	vector<pair<const string, skill*>*>::const_iterator it;
+
+	cout << endl;
+	cout << "Name: " << ch.getName() << endl;
+	cout << "Class: " << ch.getStringClass() << endl;
+	cout << "Level: " << (int)ch.getLevel() << endl;
+	cout << "Exp: " << ch.getExp() << "/" << ch.getMaxExp()<< endl;
+	cout << "HP: " << ch.getHp() << "/" << ch.getMaxHp() << endl;
+	cout << "SP: " << ch.getSp() << "/" << ch.getMaxSp() << endl;
+	cout << "Attack: " << ch.getMinAtk() << "-" << ch.getMaxAtk() << endl;
+	cout << "Dodge: " << (int)ch.getDodge() << endl;
+	cout << "Current gold: " << ch.getGold() << endl;
+	cout << "Skill points: " << (int)ch.getSkillPt() << endl;
+	cout << "Skills: " << endl;
+
+	for (it = skillList.begin(); it != skillList.end(); it++) {
+		if ((*it)->second->getLevel() > 0)
+			cout << "\t" << (*it)->second->getName() << " - " << (*it)->second->getDescription() << endl;
 	}
-	skill_list.clear();
+
+	cout << endl;
 }
 
-void view_full_stats(character &ch)
+void viewBattleStats(character &ch)
 {
-	cout << endl;
-	cout << "Name: " << ch.getname() << endl;
-	cout << "Class: " << ch.getstringclass() << endl;
-	cout << "Level: " << (int)ch.getlevel() << endl;
-	cout << "Exp: " << ch.getexp() << "/" << ch.getmaxexp()<< endl;
-	cout << "HP: " << ch.gethp() << "/" << ch.getmaxhp() << endl;
-	cout << "SP: " << ch.getsp() << "/" << ch.getmaxsp() << endl;
-	cout << "Attack: " << ch.getminatk() << "-" << ch.getmaxatk() << endl;
-	cout << "Dodge: " << (int)ch.getdodge() << endl;
-	cout << "Current gold: " << ch.getgold() << endl;
+	cout << "Name: " << ch.getName() << endl;
+	cout << "HP: " << ch.getHp() << "/" << ch.getMaxHp() << endl;
+	cout << "SP: " << ch.getSp() << "/" << ch.getMaxSp() << endl;
 	cout << endl;
 }
 
-void view_stats(character &ch)
-{
-	cout << "Name: " << ch.getname() << endl;
-	cout << "HP: " << ch.gethp() << "/" << ch.getmaxhp() << endl;
-	cout << "SP: " << ch.getsp() << "/" << ch.getmaxsp() << endl;
-	cout << endl;
-}
-
-void show_pub_menu()
+void showPubMenu()
 {
 	int choice;
 
@@ -358,6 +415,7 @@ void show_pub_menu()
 	cout << REST_CHOICE << ". Rest" << endl;
 	cout << BUY_CHOICE << ". Buy items" << endl;
 	cout << STAT_CHOICE << ". Show stats" << endl;
+	cout << USE_SKILLPT << ". Use skill point" << endl;
 	cout << EXIT_CHOICE << ". End your Journey" << endl;
 	cout << "What do you want to do?" << endl;
 
@@ -369,21 +427,22 @@ void show_pub_menu()
 	switch (choice) {
 	case EXPLORE_CHOICE:
 		cout << endl << "Going outside" << endl;
-		player.setlocation(OUTSIDE);
+		player.setLocation(OUTSIDE);
 		break;
 	case REST_CHOICE:
-		if (player.usegold(REST_COST)) {
+		if (player.useGold(REST_COST)) {
 			cout << endl << "You slept and is now refreshed" << endl;
-			player.heal(player.getmaxhp());
-		} else {
-			cout << endl << "Insufficient gold!" << endl;
+			player.heal(player.getMaxHp());
 		}
 		break;
 	case BUY_CHOICE:
 		break;
 	case STAT_CHOICE:
 		cout << endl << "Your stats" << endl;
-		view_full_stats(player);
+		viewFullStats(player);
+		break;
+	case USE_SKILLPT:
+		useSkillPt(player);
 		break;
 	case EXIT_CHOICE:
 		running = false;
@@ -393,7 +452,7 @@ void show_pub_menu()
 	cout << endl;
 }
 
-void show_outside_menu()
+void showOutsideMenu()
 {
 	int choice;
 
@@ -411,15 +470,15 @@ void show_outside_menu()
 
 	switch (choice) {
 	case MOVE_CHOICE:
-		random_encounter();
+		randomEncounter();
 		break;
 	case PUB_CHOICE:
 		cout << endl << "Going to the pub" << endl;
-		player.setlocation(PUB);
+		player.setLocation(PUB);
 		break;
 	case STAT_CHOICE:
 		cout << endl << "Your stats" << endl;
-		view_full_stats(player);
+		viewFullStats(player);
 		break;
 	case EXIT_CHOICE:
 		running = false;
@@ -429,14 +488,14 @@ void show_outside_menu()
 	cout << endl;
 }
 
-void random_encounter()
+void randomEncounter()
 {
 	int i = rand() % 100;
-	unsigned char level = player.getlevel();
+	unsigned char level = player.getLevel();
 
 	if (i <= ENEMY_CHANCE) {
 		character enemy;
-		make_enemy(enemy, level);
+		makeEnemy(enemy, level);
 		fight(enemy);
 	}
 }
@@ -449,16 +508,16 @@ void fight(character &enemy)
 	unsigned char pturn, eturn;
 	bool escape = false;
 
-	pturn = player.getturn();
-	eturn = enemy.getturn();
-	exp = enemy.getmaxhp();
-	gold = enemy.getgold();
+	pturn = player.getTurn();
+	eturn = enemy.getTurn();
+	exp = enemy.getMaxHp();
+	gold = enemy.getGold();
 
 	cout << endl;
 	cout << "An enemy has appeared!" << endl;
-	while (!player.isdead() && !enemy.isdead() && !escape) {
-		view_stats(player);
-		view_stats(enemy);
+	while (!player.isDead() && !enemy.isDead() && !escape) {
+		viewBattleStats(player);
+		viewBattleStats(enemy);
 
 		if (pturn > 0) {
 			cout << ATTACK_CHOICE << ". Attack" << endl;
@@ -475,7 +534,7 @@ void fight(character &enemy)
 
 			switch (choice) {
 			case ATTACK_CHOICE:
-				cout << endl << "You attacked " << enemy.getname() << "!" << endl;
+				cout << endl << "You attacked " << enemy.getName() << "!" << endl;
 				player.attack(enemy);
 				cin.get();
 				break;
@@ -495,7 +554,7 @@ void fight(character &enemy)
 			if (eturn <= 0) 
 				eturn++;
 		} else if (eturn > 0) {
-			cout << enemy.getname() << " attacks you!" << endl;
+			cout << enemy.getName() << " attacks you!" << endl;
 			enemy.attack(player);
 
 			cin.get();
@@ -507,23 +566,25 @@ void fight(character &enemy)
 		}
 	}
 
-	if (enemy.isdead()) {
-		cout << enemy.getname() << " defeated!" << endl;
+	if (enemy.isDead()) {
+		cout << enemy.getName() << " defeated!" << endl;
 		cout << "You received " << exp << " exp" << endl;
 		cout << "You received " << gold << " gold" << endl;
 
-		player.addgold(gold);
-		if (player.levelup(exp)) {
+		player.addGold(gold);
+		if (player.levelUp(exp)) {
 			cout << "You leveled-up!" << endl;
-			increase_stats(player);
-			view_full_stats(player);
+			increaseStats(player);
+			if (player.getLevel() % 5 == 0)
+				player.addSkillPt(1);
+			viewFullStats(player);
 		}
-	} else if (player.isdead()) {
+	} else if (player.isDead()) {
 		cout << "You died!" << endl;
 		cout << "Lost half of your gold and experience points!" << endl;
-		player.levelup(-(player.getexp() / 2));
-		player.setlocation(PUB);
-		player.heal(player.getmaxhp());
+		player.levelUp(-(player.getExp() / 2));
+		player.setLocation(PUB);
+		player.heal(player.getMaxHp());
 	} else if (escape) {
 		cout << "Escaped!" << endl;
 	}
@@ -531,72 +592,72 @@ void fight(character &enemy)
 	cout << endl;
 }
 
-// Increase stats for the player
-void increase_stats(character &p)
+// Increase stats for level-up
+void increaseStats(character &p)
 {
-	unsigned short hp, sp, minatk, maxatk, maxexp;
+	unsigned short hp, sp, minAtk, maxAtk, maxExp;
 	unsigned char level;
-	hp = p.getmaxhp();
-	sp = p.getmaxsp();
-	minatk = p.getminatk();
-	maxatk = p.getmaxatk();
-	maxexp = p.getmaxexp();
-	level = p.getlevel();
+	hp = p.getMaxHp();
+	sp = p.getMaxSp();
+	minAtk = p.getMinAtk();
+	maxAtk = p.getMaxAtk();
+	maxExp = p.getMaxExp();
+	level = p.getLevel();
 
-	maxexp += maxexp / 2;
-	switch (p.getclass()) {
+	maxExp += maxExp / 2;
+	switch (p.getClass()) {
 	case WARRIOR:
 		hp += 10 + (7 * level);
 		sp += 1.25 * level;
-		minatk += 2 * level;
-		maxatk += 2 * level;
+		minAtk += 2 * level;
+		maxAtk += 2 * level;
 		break;
 	case MAGE:
 		hp += 5 + (2.5 * level);
 		sp += 3 * level;
-		minatk += 0.75 * level;
-		maxatk += 0.75 * level;
+		minAtk += 0.75 * level;
+		maxAtk += 0.75 * level;
 		break;
 	case RANGER:
 		hp += 5 + (3 * level);
 		sp += 1.5 * level;
-		minatk += 3 * level;
-		maxatk += 3 * level;
+		minAtk += 3 * level;
+		maxAtk += 3 * level;
 		break;
 	case ENEMY:
 		break;
 	}
 
-	p.setmaxhp(hp);
-	p.setmaxsp(sp);
-	p.setminatk(minatk);
-	p.setmaxatk(maxatk);
-	p.setmaxexp(maxexp);
+	p.setMaxHp(hp);
+	p.setMaxSp(sp);
+	p.setMinAtk(minAtk);
+	p.setMaxAtk(maxAtk);
+	p.setMaxExp(maxExp);
 }
 
 // Make enemy stats relative to player's current level
-void make_enemy(character &e, const unsigned char level)
+void makeEnemy(character &e, const unsigned char level)
 {
 	unsigned char x;
-	unsigned short hp, sp, minatk, maxatk;
+	unsigned short hp, sp, minAtk, maxAtk;
 	hp = 28;
 	sp = 10;
-	minatk = 24;
-	maxatk = 29;
+	minAtk = 24;
+	maxAtk = 29;
 
 	for (x = 0; x < level; x++) {
 		hp += 7 + (5 * level);
 		sp += 10 + (2 * level);
-		minatk += 1.5 * level;
-		maxatk += 1.5 * level;
+		minAtk += 1.5 * level;
+		maxAtk += 1.5 * level;
 	}
 
-	e.setname("Pikachu");
-	e.setclass(ENEMY);
-	e.setmaxhp(hp);
-	e.setmaxsp(sp);
-	e.setminatk(minatk);
-	e.setmaxatk(maxatk);
-	e.setlevel(level);
-	e.setgold(50);
+	e.setName("Pikachu");
+	e.setClass(ENEMY);
+	e.setMaxHp(hp);
+	e.setMaxSp(sp);
+	e.setMinAtk(minAtk);
+	e.setMaxAtk(maxAtk);
+	e.setLevel(level);
+	e.setGold(50);
 }

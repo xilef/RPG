@@ -11,25 +11,31 @@ class skill
 {
 	public:
 		skill(list<mods*>* pm, list<effects*>* pe, list<mods*>* em, list<effects*>* ee, unsigned short id,
-				unsigned short sp, enum skill_type t, enum class_system c, string* n, string* desc, skill* sk);
+				unsigned short sp, unsigned char l, enum skillType t, enum classSystem c, string* n, string* desc, skill* sk);
 		~skill();
 
-		unsigned short getdamage() const {return (init_damage);};
+		unsigned short getDamage() const {return (initDamage);};
+		unsigned char getLevel() const {return (level);};
+		enum classSystem getClassType() const {return (cs);};
+		string getName() const {return (name);};
+		string getDescription() const {return (description);};
+		skill* getNextLevel() {return (nextLevel);};
 
 	private:
 		// Player mods:
-		list<mods*>* pl_mods;
-		list<effects*>* pl_effects;
+		list<mods*>* playerMods;
+		list<effects*>* playerEffects;
 
 		// Enemy mods:
-		list<mods*>* en_mods;
-		list<effects*>* en_effects;
+		list<mods*>* enemyMods;
+		list<effects*>* enemyEffects;
 
-		unsigned short init_damage, sp_cost;
+		unsigned short initDamage, spCost;
+		unsigned char level;
 
-		enum skill_type type;
-		enum class_system cs;
+		enum skillType type;
+		enum classSystem cs;
 		string name, description;
-		skill* nextlevel;
+		skill* nextLevel;
 };
 #endif

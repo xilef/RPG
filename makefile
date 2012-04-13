@@ -1,4 +1,4 @@
-OBJS = main.o character.o skill.o
+OBJS = main.o character.o skill.o skillmanager.o
 CC = g++
 DEBUG = -g
 CFLAGS = -Wall -c $(DEBUG)
@@ -18,5 +18,7 @@ character.o : $(SRCFOLDER)/skill.h $(SRCFOLDER)/character.h $(SRCFOLDER)/charact
 skill.o : $(SRCFOLDER)/skill.h $(SRCFOLDER)/skill.cpp
 	$(CC) $(CFLAGS) $(SRCFOLDER)/skill.cpp
 
+skillmanager.o : $(SRCFOLDER)/skillmanager.h $(SRCFOLDER)/skillmanager.cpp
+	$(CC) $(CFLAGS) $(SRCFOLDER)/skillmanager.cpp
 clean :
 	rm -rf *.o
