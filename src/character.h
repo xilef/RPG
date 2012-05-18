@@ -4,7 +4,7 @@
 #include <vector>
 #include <utility>
 #include "main.h"
-#include "skill.h"
+#include "skillmanager.h"
 
 using std::string;
 using std::vector;
@@ -32,7 +32,7 @@ class character
 		string getStringClass() const;
 		enum location getLocation() const {return (loc);};
 		enum classSystem getClass() const {return (type);};
-		vector<pair<const string, skill*>*>getSkillList() const {return (skills);};
+		vector<skillKey>getSkillList() const {return (skills);};
 
 		void setName(const string &n) {name = n;};
 		void setMaxHp(const unsigned short h) {maxHp = currentHp = h;};
@@ -48,11 +48,10 @@ class character
 		void setSkillPt(const unsigned char s) {skillPt = s;};
 		void addSkillPt(const unsigned char s) {skillPt += s;};
 		void setGold(const unsigned int g) {gold = g;};
-		void setSkill(const vector<pair<const string, skill*>*> sl) {skills = sl;};
+		void setSkill(const vector<skillKey> sl) {skills = sl;};
 
 		void heal(const unsigned short h);
 		void attack(character &e);
-		void useskill(skill &sk, character &e);
 		void receiveDamage(const unsigned short damage);
 		bool levelUp(const short ex);
 		bool isDead() const;
@@ -68,6 +67,6 @@ class character
 		enum classSystem type;
 		enum location loc;
 		string name;
-		vector<pair<const string, skill*>*> skills;
+		vector<skillKey> skills;
 };
 #endif

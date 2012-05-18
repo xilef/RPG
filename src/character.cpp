@@ -89,8 +89,3 @@ bool character::useGold(unsigned int g)
 
 	return (true);
 }
-
-void character::useskill(skill &sk, character &e)
-{
-	e.receiveDamage(sk.getDamage());
-}

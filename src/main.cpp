@@ -2,8 +2,7 @@
 // written by Felix Isaac Palomares
 //
 // TODO:
-//		How to store skills in the character
-// 		Skill usage in the main game
+// 		Skill usage in battle
 
 #include "main.h"
 #include "character.h"
@@ -15,6 +14,7 @@
 #include <cstdlib>
 #include <cctype>
 #include <limits>
+#include <typeinfo>
 
 using namespace::std;
 
@@ -26,13 +26,17 @@ void init();
 void initPlayer(character &p, int choice);
 void initSkills();
 void useSkillPt(character &ch);
+
 void cleanup();
+
 void viewFullStats(const character &ch);
 void viewBattleStats(const character &ch);
 void showPubMenu();
 void showOutsideMenu();
+
 void randomEncounter();
 void fight(character &enemy);
+void useSkill(character &ch);
 void increaseStats(character &p);
 void makeEnemy(character &e, const unsigned char level);
 
@@ -127,7 +131,7 @@ void initPlayer(character &p, int choice)
 
 void initSkills()
 {
-	skill* sk0, * sk1, * sk2, * sk3;
+	skill* sk;
 	effects* tempPlayerEffects, * tempEnemyEffects;
 	mods* tempPlayerMods, * tempEnemyMods;
 	string tempName, tempDescription;
@@ -170,8 +174,9 @@ void initSkills()
 	tempEnemyEffectsList = new list<effects*>;
 	tempEnemyEffectsList->push_back(tempEnemyEffects);
 
-	sk3 = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 100, 35, 3, ACTIVE, MAGE,
-					&tempName, &tempDescription, NULL);
+	sk = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 100, 35, 3, ACTIVE, MAGE,
+					&tempName, &tempDescription);
+	skillMan.addSkill(sk);
 
 	// Level 2
 	tempDescription = "Burn your target with a incredible flame, the target recieves 50 damage and another 20 damage for the next 2 turns.";
@@ -179,8 +184,9 @@ void initSkills()
 	tempEnemyEffectsList = new list<effects*>;
 	tempEnemyEffectsList->push_back(tempEnemyEffects);
 
-	sk2 = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 50, 25, 2, ACTIVE, MAGE,
-					&tempName, &tempDescription, sk3);
+	sk = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 50, 25, 2, ACTIVE, MAGE,
+					&tempName, &tempDescription);
+	skillMan.addSkill(sk);
 
 	// Level 1
 	tempDescription = "Burn your target with a incredible flame, the target recieves 20 damage and another 10 damage for the next turn.";
@@ -188,12 +194,13 @@ void initSkills()
 	tempEnemyEffectsList = new list<effects*>;
 	tempEnemyEffectsList->push_back(tempEnemyEffects);
 
-	sk1 = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 20, 15, 1, ACTIVE, MAGE,
-					&tempName, &tempDescription, sk2);
+	sk = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 20, 15, 1, ACTIVE, MAGE,
+					&tempName, &tempDescription);
+	skillMan.addSkill(sk);
 
-	sk0 = new skill(NULL, NULL, NULL, NULL, 0, 0, 0, ACTIVE, MAGE, &tempName, &tempDescription, sk1);
-
-	skillMan.skillList[tempName] = sk0;
+	sk = new skill(NULL, NULL, NULL, NULL, 0, 0, 0, ACTIVE, MAGE, &tempName, &tempDescription);
+	skillMan.addSkill(sk);
+	//skillMan.skillList[tempName] = sk0;
 
 	//	Frostbite
 	//	Level 1:
@@ -229,8 +236,9 @@ void initSkills()
 	tempPlayerEffectsList = NULL;
 	tempEnemyEffectsList = NULL;
 
-	sk3 = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 150, 50, 3, ACTIVE, MAGE,
-					&tempName, &tempDescription, NULL);
+	sk = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 150, 50, 3, ACTIVE, MAGE,
+					&tempName, &tempDescription);
+	skillMan.addSkill(sk);
 
 	// Level 2
 	tempDescription = "Freeze your target dealing 50 damage and the target attack will be reduced by 30% in the next turn.";
@@ -238,8 +246,9 @@ void initSkills()
 	tempEnemyModsList = new list<mods*>;
 	tempEnemyModsList->push_back(tempEnemyMods);
 
-	sk2 = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 50, 20, 2, ACTIVE, MAGE,
-					&tempName, &tempDescription, sk3);
+	sk = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 50, 20, 2, ACTIVE, MAGE,
+					&tempName, &tempDescription);
+	skillMan.addSkill(sk);
 
 	// Level 1
 	tempDescription = "Freeze your target dealing 10 damage and the target attack will be reduced by 20% in the next turn.";
@@ -247,12 +256,14 @@ void initSkills()
 	tempEnemyModsList = new list<mods*>;
 	tempEnemyModsList->push_back(tempEnemyMods);
 
-	sk1 = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 10, 5, 1, ACTIVE, MAGE,
-					&tempName, &tempDescription, sk2);
+	sk = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 10, 5, 1, ACTIVE, MAGE,
+					&tempName, &tempDescription);
+	skillMan.addSkill(sk);
 
-	sk0 = new skill(NULL, NULL, NULL, NULL, 0, 0, 0, ACTIVE, MAGE, &tempName, &tempDescription, sk1);
+	sk = new skill(NULL, NULL, NULL, NULL, 0, 0, 0, ACTIVE, MAGE, &tempName, &tempDescription);
 
-	skillMan.skillList[tempName] = sk0;
+	skillMan.addSkill(sk);
+	//skillMan.skillList[tempName] = sk0;
 
 	//	Thunder Burst
 	//	Level 1:
@@ -298,8 +309,9 @@ void initSkills()
 	tempEnemyEffects = new effects(HP_DRAIN, 35, 0, 50);
 	tempEnemyEffectsList->push_back(tempEnemyEffects);
 
-	sk3 = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 175, 50, 3, ACTIVE, MAGE,
-					&tempName, &tempDescription, NULL);
+	sk = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 175, 50, 3, ACTIVE, MAGE,
+					&tempName, &tempDescription);
+	skillMan.addSkill(sk);
 
 	// Level 2
 	tempDescription = "Call the force of thunder and lightning to hit the target dealing 75 damage, 35% chance of stunning the target.";
@@ -307,8 +319,9 @@ void initSkills()
 	tempEnemyEffectsList = new list<effects*>;
 	tempEnemyEffectsList->push_back(tempEnemyEffects);
 
-	sk2 = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 75, 20, 2, ACTIVE, MAGE,
-					&tempName, &tempDescription, sk3);
+	sk = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 75, 20, 2, ACTIVE, MAGE,
+					&tempName, &tempDescription);
+	skillMan.addSkill(sk);
 
 	// Level 1
 	tempDescription = "Call the force of thunder and lightning to hit the target dealing 20 damage, 20% chance of stunning the target.";
@@ -316,12 +329,14 @@ void initSkills()
 	tempEnemyEffectsList = new list<effects*>;
 	tempEnemyEffectsList->push_back(tempEnemyEffects);
 
-	sk1 = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 20, 5, 1, ACTIVE, MAGE,
-					&tempName, &tempDescription, sk2);
+	sk = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 20, 5, 1, ACTIVE, MAGE,
+					&tempName, &tempDescription);
+	skillMan.addSkill(sk);
 
-	sk0 = new skill(NULL, NULL, NULL, NULL, 0, 0, 0, ACTIVE, MAGE, &tempName, &tempDescription, sk1);
+	sk = new skill(NULL, NULL, NULL, NULL, 0, 0, 0, ACTIVE, MAGE, &tempName, &tempDescription);
 
-	skillMan.skillList[tempName] = sk0;
+	skillMan.addSkill(sk);
+	//skillMan.skillList[tempName] = sk0;
 
 	// Ranger skills
 
@@ -332,17 +347,31 @@ void useSkillPt(character &ch)
 	unsigned char pt = ch.getSkillPt();
 	unsigned char ans = 'Y';
 	int choice, x, size;
-	vector<pair<const string, skill*>*> skillList = ch.getSkillList();
-	vector<pair<const string, skill*>*>::iterator it;
-	size = skillList.size();
+	vector<skillKey> skillList = ch.getSkillList();
+	vector<skillKey>::iterator sk;
+	map<string, unsigned char> upgradeableSkills;
+	map<string, unsigned char>::iterator uSk_it;
+	
 
 	if (pt == 0) {
 		cout << "No Skill point to use!" << endl;
 	} else {
 		do {
-			for (it = skillList.begin(), x = 1; it != skillList.end(); it++, x++) {
-				cout << x << ": " << (*it)->second->getName() << " - " << (*it)->second->getDescription() << endl;
+			for (sk = skillList.begin(); sk != skillList.end(); sk++) {
+				if (skillMan.exists(sk->first, sk->second + 1))
+					upgradeableSkills[sk->first] = sk->second;
 			}
+
+			for (uSk_it = upgradeableSkills.begin(), x = 1; uSk_it != upgradeableSkills.end(); uSk_it++, x++)
+				cout << x << ". " << uSk_it->first << endl;
+
+			size = upgradeableSkills.size();
+			
+			if (size < 1) {
+				cout << "No available skills to upgrade!" << endl;
+				break;
+			}
+
 			cout << "Which skill do you want to improve?" << endl;
 
 			do {
@@ -350,9 +379,16 @@ void useSkillPt(character &ch)
 				cin >> choice;
 			} while (choice < 0 || choice > size);
 
-			cout << skillList[choice - 1]->second->getName() << " level-up!" << endl;
-			skillList[choice - 1]->second = skillList[choice - 1]->second->getNextLevel();	// To be changed
-			pt--;
+			for (uSk_it = upgradeableSkills.begin(), x = 1; uSk_it != upgradeableSkills.end(); uSk_it++, x++) {
+				if (x == choice) {
+					cout << uSk_it->first << " level-up!" << endl;
+					skillList.push_back(make_pair((*uSk_it).first, (*uSk_it).second + 1));
+					pt--;
+					ch.setSkill(skillList);
+					ch.setSkillPt(pt);
+					break;
+				}
+			}
 
 			if (pt > 0) {
 				cout << "Use more points? [Y/N]" << endl;
@@ -363,8 +399,6 @@ void useSkillPt(character &ch)
 			}
 		} while (toupper(ans) == 'Y' && pt > 0);
 	}
-
-	ch.setSkillPt(pt);
 }
 
 void cleanup()
@@ -374,8 +408,8 @@ void cleanup()
 
 void viewFullStats(character &ch)
 {
-	vector<pair<const string, skill*>*> skillList = ch.getSkillList();
-	vector<pair<const string, skill*>*>::const_iterator it;
+	vector<skillKey> skillList = ch.getSkillList();
+	vector<skillKey>::const_iterator it;
 
 	cout << endl;
 	cout << "Name: " << ch.getName() << endl;
@@ -391,8 +425,8 @@ void viewFullStats(character &ch)
 	cout << "Skills: " << endl;
 
 	for (it = skillList.begin(); it != skillList.end(); it++) {
-		if ((*it)->second->getLevel() > 0)
-			cout << "\t" << (*it)->second->getName() << " - " << (*it)->second->getDescription() << endl;
+		if (it->second > 0)
+			cout << "\t" << it->first << " Level " << (int)it->second << endl;
 	}
 
 	cout << endl;
@@ -542,9 +576,11 @@ void fight(character &enemy)
 				cin.get();
 				break;
 			case SKILL_CHOICE:
+				useSkill(player);
 				cin.get();
 				break;
 			case RUN_CHOICE:
+				cout << "Escaped!" << endl;
 				escape = true;
 				break;
 			}
@@ -590,6 +626,33 @@ void fight(character &enemy)
 	}
 
 	cout << endl;
+}
+
+void useSkill(character &ch)
+{
+	vector<skillKey> skillList = ch.getSkillList();
+	vector<skillKey>::const_iterator it;
+	const skill *sk;
+	int choice, x, size;
+
+	size = skillList.size();
+
+	for (it = skillList.begin(), x = 1; it != skillList.end(); it++) {
+		if (it->second > 0) {
+			cout << x << ".\t" << it->first << " Level " << (int)it->second << endl;
+			x++;
+		}
+	}
+
+	cout << "Which skill do you want to use?" << endl;
+
+	do {
+		cout << ":";
+		cin >> choice;
+	} while (choice < 0 || choice > size);
+	
+	sk = skillMan.getSkill(skillList[choice - 1]);
+	cout << "skill name: " << sk->getName() <<  " level: " << (int)sk->getLevel() << " damage: " << sk->getDamage() << endl;
 }
 
 // Increase stats for level-up

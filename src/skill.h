@@ -11,7 +11,7 @@ class skill
 {
 	public:
 		skill(list<mods*>* pm, list<effects*>* pe, list<mods*>* em, list<effects*>* ee, unsigned short id,
-				unsigned short sp, unsigned char l, enum skillType t, enum classSystem c, string* n, string* desc, skill* sk);
+				unsigned short sp, unsigned char l, enum skillType t, enum classSystem c, string* n, string* desc);
 		~skill();
 
 		unsigned short getDamage() const {return (initDamage);};
@@ -19,7 +19,6 @@ class skill
 		enum classSystem getClassType() const {return (cs);};
 		string getName() const {return (name);};
 		string getDescription() const {return (description);};
-		skill* getNextLevel() {return (nextLevel);};
 
 	private:
 		// Player mods:
@@ -36,6 +35,7 @@ class skill
 		enum skillType type;
 		enum classSystem cs;
 		string name, description;
-		skill* nextLevel;
+
+	friend class skillManager;
 };
 #endif
