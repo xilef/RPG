@@ -89,3 +89,15 @@ bool character::useGold(unsigned int g)
 
 	return (true);
 }
+
+bool character::useSp(unsigned short s)
+{
+	if (s > currentSp) {
+		cout << "Not enough SP!" << endl;
+		return (false);
+	} else {
+		currentSp -= s;
+	}
+	
+	return (true);
+}

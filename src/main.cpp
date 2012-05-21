@@ -25,7 +25,7 @@ skillManager skillMan;
 void init();
 void initPlayer(character &p, int choice);
 void initSkills();
-void useSkillPt(character &ch);
+void useSkillPt(character &ch, const bool init);
 
 void cleanup();
 
@@ -36,7 +36,7 @@ void showOutsideMenu();
 
 void randomEncounter();
 void fight(character &enemy);
-void useSkill(character &ch);
+void useSkill(character &ch, character &en);
 void increaseStats(character &p);
 void makeEnemy(character &e, const unsigned char level);
 
@@ -87,7 +87,9 @@ void init()
 
 	// Setup initial player stats
 	initPlayer(player, choice);
-	useSkillPt(player);
+
+	cout << endl;
+	useSkillPt(player, true);
 
 	// Seed for the random encounters, dodge and skill hit chance
 	srand(time(NULL));
@@ -109,21 +111,21 @@ void initPlayer(character &p, int choice)
 		break;
 	case 2:
 		p.setClass(MAGE);
-		p.setMaxHp(20);
+		p.setMaxHp(30);
 		p.setMaxSp(30);
 		p.setMinAtk(5);
 		p.setMaxAtk(10);
-		p.setDodge(40);
+		p.setDodge(60);
 		p.setSkill(skillMan.getSkillList(MAGE));
 		break;
 	case 3:
 		p.setClass(RANGER);
-		p.setMaxHp(30);
+		p.setMaxHp(35);
 		p.setMaxSp(5);
 		p.setMinAtk(13);
 		p.setMaxAtk(18);
 		p.setTurn(2);
-		p.setDodge(60);
+		p.setDodge(70);
 		p.setSkill(skillMan.getSkillList(RANGER));
 		break;
 	}
@@ -342,16 +344,15 @@ void initSkills()
 
 }
 
-void useSkillPt(character &ch)
+void useSkillPt(character &ch, const bool init)
 {
 	unsigned char pt = ch.getSkillPt();
 	unsigned char ans = 'Y';
 	int choice, x, size;
 	vector<skillKey> skillList = ch.getSkillList();
 	vector<skillKey>::iterator sk;
-	map<string, unsigned char> upgradeableSkills;
-	map<string, unsigned char>::iterator uSk_it;
-	
+	vector<skillKey> upgradeableSkills;
+	vector<skillKey>::iterator uSk_it;
 
 	if (pt == 0) {
 		cout << "No Skill point to use!" << endl;
@@ -359,7 +360,7 @@ void useSkillPt(character &ch)
 		do {
 			for (sk = skillList.begin(); sk != skillList.end(); sk++) {
 				if (skillMan.exists(sk->first, sk->second + 1))
-					upgradeableSkills[sk->first] = sk->second;
+					upgradeableSkills.push_back(*sk);
 			}
 
 			for (uSk_it = upgradeableSkills.begin(), x = 1; uSk_it != upgradeableSkills.end(); uSk_it++, x++)
@@ -372,7 +373,10 @@ void useSkillPt(character &ch)
 				break;
 			}
 
-			cout << "Which skill do you want to improve?" << endl;
+			if (init)
+				cout << "Which initial skill would you like to have?" << endl;
+			else
+				cout << "Which skill do you want to improve?" << endl;
 
 			do {
 				cout << ":";
@@ -425,8 +429,10 @@ void viewFullStats(character &ch)
 	cout << "Skills: " << endl;
 
 	for (it = skillList.begin(); it != skillList.end(); it++) {
-		if (it->second > 0)
-			cout << "\t" << it->first << " Level " << (int)it->second << endl;
+		if (it->second > 0) {
+			cout << "\t" << it->first << " Level " << (int)it->second << " - " 
+					<< skillMan.getSkill(*it)->getDescription() << endl;
+		}
 	}
 
 	cout << endl;
@@ -476,7 +482,7 @@ void showPubMenu()
 		viewFullStats(player);
 		break;
 	case USE_SKILLPT:
-		useSkillPt(player);
+		useSkillPt(player, false);
 		break;
 	case EXIT_CHOICE:
 		running = false;
@@ -554,36 +560,42 @@ void fight(character &enemy)
 		viewBattleStats(enemy);
 
 		if (pturn > 0) {
-			cout << ATTACK_CHOICE << ". Attack" << endl;
-			cout << ITEM_CHOICE << ". Use an item" << endl;
-			cout << SKILL_CHOICE << ". Use a skill" << endl;
-			cout << RUN_CHOICE << ". Run away" << endl;
-			cout << "What do you want to do?" << endl;
+			//do {
+				cout << ATTACK_CHOICE << ". Attack" << endl;
+				cout << ITEM_CHOICE << ". Use an item" << endl;
+				cout << SKILL_CHOICE << ". Use a skill" << endl;
+				cout << RUN_CHOICE << ". Run away" << endl;
+				cout << "What do you want to do?" << endl;
 
-			do {
-				cout << ": ";
-				cin >> choice;
-			} while (choice < 1 || choice > RUN_CHOICE);
-			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+				do {
+					cout << ": ";
+					cin >> choice;
+				} while (choice < 1 || choice > RUN_CHOICE);
+				cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-			switch (choice) {
-			case ATTACK_CHOICE:
-				cout << endl << "You attacked " << enemy.getName() << "!" << endl;
-				player.attack(enemy);
-				cin.get();
-				break;
-			case ITEM_CHOICE:
-				cin.get();
-				break;
-			case SKILL_CHOICE:
-				useSkill(player);
-				cin.get();
-				break;
-			case RUN_CHOICE:
-				cout << "Escaped!" << endl;
-				escape = true;
-				break;
-			}
+				switch (choice) {
+				case ATTACK_CHOICE:
+					cout << endl << "You attacked " << enemy.getName() << "!" << endl;
+					player.attack(enemy);
+					cin.get();
+					break;
+				case ITEM_CHOICE:
+					cin.get();
+					break;
+				case SKILL_CHOICE:
+					if (player.getSp() > 0)
+						useSkill(player, enemy);
+					else
+						cout << endl << "No SP to use any skill!" << endl;
+
+					cin.get();
+					break;
+				case RUN_CHOICE:
+					cout << "Escaped!" << endl;
+					escape = true;
+					break;
+				}
+			//} while (true);
 
 			// End player turn
 			pturn--;
@@ -628,31 +640,46 @@ void fight(character &enemy)
 	cout << endl;
 }
 
-void useSkill(character &ch)
+void useSkill(character &ch, character &en)
 {
 	vector<skillKey> skillList = ch.getSkillList();
 	vector<skillKey>::const_iterator it;
+	vector<skillKey> useableSkills;
+	vector<skillKey>::iterator uSk_it;
 	const skill *sk;
 	int choice, x, size;
+	unsigned short sp = ch.getSp();
+	choice = 0;
 
 	size = skillList.size();
 
+	cout << endl;
 	for (it = skillList.begin(), x = 1; it != skillList.end(); it++) {
 		if (it->second > 0) {
-			cout << x << ".\t" << it->first << " Level " << (int)it->second << endl;
+			cout << x << ". " << it->first << " Level " << (int)it->second << endl;
+			if (skillMan.getSkill(*it)->getSpCost() <= sp)
+				choice = 1;
+			useableSkills.push_back(*it);
 			x++;
 		}
 	}
 
+	if (!choice) {
+		cout << endl << "No skill usable with current SP!" << endl;
+		return;
+	}
 	cout << "Which skill do you want to use?" << endl;
 
 	do {
 		cout << ":";
 		cin >> choice;
 	} while (choice < 0 || choice > size);
-	
-	sk = skillMan.getSkill(skillList[choice - 1]);
-	cout << "skill name: " << sk->getName() <<  " level: " << (int)sk->getLevel() << " damage: " << sk->getDamage() << endl;
+	cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+	sk = skillMan.getSkill(useableSkills[choice - 1]);
+	ch.useSp(sk->getSpCost());
+	cout << endl << "Used " << sk->getName() << "!" << endl;
+	en.receiveDamage(sk->getDamage());
 }
 
 // Increase stats for level-up

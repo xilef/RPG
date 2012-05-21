@@ -32,7 +32,7 @@ class character
 		string getStringClass() const;
 		enum location getLocation() const {return (loc);};
 		enum classSystem getClass() const {return (type);};
-		vector<skillKey>getSkillList() const {return (skills);};
+		vector<skillKey> getSkillList() const {return (skills);};
 
 		void setName(const string &n) {name = n;};
 		void setMaxHp(const unsigned short h) {maxHp = currentHp = h;};
@@ -57,6 +57,7 @@ class character
 		bool isDead() const;
 		bool useGold(unsigned int g);
 		void addGold(unsigned int g) {gold += g;};
+		bool useSp(unsigned short s);
 
 	private:
 		unsigned short baseMaxHp, baseMaxSp, baseMaxAtk, baseMinAtk, baseDef, baseDodge;

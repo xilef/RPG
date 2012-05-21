@@ -15,6 +15,7 @@ class skill
 		~skill();
 
 		unsigned short getDamage() const {return (initDamage);};
+		unsigned short getSpCost() const {return (spCost);};
 		unsigned char getLevel() const {return (level);};
 		enum classSystem getClassType() const {return (cs);};
 		string getName() const {return (name);};
