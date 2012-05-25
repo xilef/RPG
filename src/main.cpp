@@ -15,6 +15,7 @@
 #include <cctype>
 #include <limits>
 #include <typeinfo>
+#include <list>
 
 using namespace::std;
 
@@ -350,24 +351,27 @@ void useSkillPt(character &ch, const bool init)
 	unsigned char ans = 'Y';
 	int choice, x, size;
 	vector<skillKey> skillList = ch.getSkillList();
-	vector<skillKey>::iterator sk;
-	vector<skillKey> upgradeableSkills;
-	vector<skillKey>::iterator uSk_it;
+	list<skillKey> upgradeableSkills;
+	list<skillKey>::const_iterator sk;
+	skillKey key;
 
 	if (pt == 0) {
 		cout << "No Skill point to use!" << endl;
 	} else {
 		do {
+			// Locate the highest level skill the player has and see if it is still upgradeable
 			for (sk = skillList.begin(); sk != skillList.end(); sk++) {
-				if (skillMan.exists(sk->first, sk->second + 1))
+				if (skillMan.exists(sk->first, sk->second + 1)) {
 					upgradeableSkills.push_back(*sk);
+					upgradeableSkills.remove(make_pair(sk->first, sk->second - 1));
+				}
 			}
 
-			for (uSk_it = upgradeableSkills.begin(), x = 1; uSk_it != upgradeableSkills.end(); uSk_it++, x++)
-				cout << x << ". " << uSk_it->first << endl;
+			for (sk = upgradeableSkills.begin(), x = 1; sk != upgradeableSkills.end(); sk++, x++)
+				cout << x << ". " << sk->first << endl;
 
 			size = upgradeableSkills.size();
-			
+
 			if (size < 1) {
 				cout << "No available skills to upgrade!" << endl;
 				break;
@@ -383,16 +387,12 @@ void useSkillPt(character &ch, const bool init)
 				cin >> choice;
 			} while (choice < 0 || choice > size);
 
-			for (uSk_it = upgradeableSkills.begin(), x = 1; uSk_it != upgradeableSkills.end(); uSk_it++, x++) {
-				if (x == choice) {
-					cout << uSk_it->first << " level-up!" << endl;
-					skillList.push_back(make_pair((*uSk_it).first, (*uSk_it).second + 1));
-					pt--;
-					ch.setSkill(skillList);
-					ch.setSkillPt(pt);
-					break;
-				}
-			}
+			key = upgradeableSkills[choice - 1];
+			cout << key.first << " level-up!" << endl;
+			skillList.push_back(make_pair(key.first, key.second + 1));
+			pt--;
+			ch.setSkill(skillList);
+			ch.setSkillPt(pt);
 
 			if (pt > 0) {
 				cout << "Use more points? [Y/N]" << endl;
@@ -645,7 +645,6 @@ void useSkill(character &ch, character &en)
 	vector<skillKey> skillList = ch.getSkillList();
 	vector<skillKey>::const_iterator it;
 	vector<skillKey> useableSkills;
-	vector<skillKey>::iterator uSk_it;
 	const skill *sk;
 	int choice, x, size;
 	unsigned short sp = ch.getSp();
@@ -657,8 +656,11 @@ void useSkill(character &ch, character &en)
 	for (it = skillList.begin(), x = 1; it != skillList.end(); it++) {
 		if (it->second > 0) {
 			cout << x << ". " << it->first << " Level " << (int)it->second << endl;
+
+			// Check if there are usable skills given the char's current SP
 			if (skillMan.getSkill(*it)->getSpCost() <= sp)
 				choice = 1;
+
 			useableSkills.push_back(*it);
 			x++;
 		}
@@ -677,8 +679,8 @@ void useSkill(character &ch, character &en)
 	cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
 	sk = skillMan.getSkill(useableSkills[choice - 1]);
-	ch.useSp(sk->getSpCost());
 	cout << endl << "Used " << sk->getName() << "!" << endl;
+	ch.useSp(sk->getSpCost());
 	en.receiveDamage(sk->getDamage());
 }
 
