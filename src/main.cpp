@@ -351,8 +351,9 @@ void useSkillPt(character &ch, const bool init)
 	unsigned char ans = 'Y';
 	int choice, x, size;
 	vector<skillKey> skillList = ch.getSkillList();
+	vector<skillKey>::const_iterator sk;
 	list<skillKey> upgradeableSkills;
-	list<skillKey>::const_iterator sk;
+	list<skillKey>::const_iterator upSk;
 	skillKey key;
 
 	if (pt == 0) {
@@ -367,8 +368,8 @@ void useSkillPt(character &ch, const bool init)
 				}
 			}
 
-			for (sk = upgradeableSkills.begin(), x = 1; sk != upgradeableSkills.end(); sk++, x++)
-				cout << x << ". " << sk->first << endl;
+			for (upSk = upgradeableSkills.begin(), x = 1; upSk != upgradeableSkills.end(); upSk++, x++)
+				cout << x << ". " << upSk->first << endl;
 
 			size = upgradeableSkills.size();
 
@@ -387,7 +388,11 @@ void useSkillPt(character &ch, const bool init)
 				cin >> choice;
 			} while (choice < 0 || choice > size);
 
-			key = upgradeableSkills[choice - 1];
+			for (upSk = upgradeableSkills.begin(), x = 1; upSk != upgradeableSkills.end(); upSk++, x++) {
+				if (x == choice)
+					key = (*upSk);
+			}
+
 			cout << key.first << " level-up!" << endl;
 			skillList.push_back(make_pair(key.first, key.second + 1));
 			pt--;
