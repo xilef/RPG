@@ -10,7 +10,7 @@ using std::list;
 class skill
 {
 	public:
-		skill(list<mods*>* pm, list<effects*>* pe, list<mods*>* em, list<effects*>* ee, unsigned short id,
+		skill(list<mods>* pm, list<effects>* pe, list<mods>* em, list<effects>* ee, unsigned short id,
 				unsigned short sp, unsigned char l, enum skillType t, enum classSystem c, string* n, string* desc);
 		~skill();
 
@@ -20,15 +20,19 @@ class skill
 		enum classSystem getClassType() const {return (cs);};
 		string getName() const {return (name);};
 		string getDescription() const {return (description);};
+		list<mods>* getPlayerMods() const {return (playerMods);};
+		list<mods>* getEnemyMods() const {return (enemyMods);};
+		list<effects>* getPlayerEffects() const {return (playerEffects);};
+		list<effects>* getEnemyEffects() const {return (enemyEffects);};
 
 	private:
 		// Player mods:
-		list<mods*>* playerMods;
-		list<effects*>* playerEffects;
+		list<mods>* playerMods;
+		list<effects>* playerEffects;
 
 		// Enemy mods:
-		list<mods*>* enemyMods;
-		list<effects*>* enemyEffects;
+		list<mods>* enemyMods;
+		list<effects>* enemyEffects;
 
 		unsigned short initDamage, spCost;
 		unsigned char level;

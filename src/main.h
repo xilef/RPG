@@ -33,14 +33,15 @@ typedef struct _mods
 {
 	enum stats stat;
 	unsigned char val, turns, chance;
+	_mods() {};
 	_mods(enum stats s, unsigned char v, unsigned char t, unsigned char ch): stat(s), val(v), turns(t), chance(ch) {};
 } mods;
-
 
 typedef struct _effects
 {
 	enum effect eff;
 	unsigned char val, turns, chance;
+	_effects() {};
 	_effects(enum effect e, unsigned char v, unsigned char t, unsigned char ch): eff(e), val(v), turns(t), chance(ch) {};
 } effects;
 

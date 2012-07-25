@@ -33,6 +33,8 @@ class character
 		enum location getLocation() const {return (loc);};
 		enum classSystem getClass() const {return (type);};
 		vector<skillKey> getSkillList() const {return (skills);};
+		list<mods> getCurrentMods() const {return (currentMods);};
+		list<effects> getCurrentEffects() const {return (currentEffects);};
 
 		void setName(const string &n) {name = n;};
 		void setMaxHp(const unsigned short h) {maxHp = currentHp = h;};
@@ -49,6 +51,8 @@ class character
 		void addSkillPt(const unsigned char s) {skillPt += s;};
 		void setGold(const unsigned int g) {gold = g;};
 		void setSkill(const vector<skillKey> sl) {skills = sl;};
+		void addMods(list<mods>* m);
+		void addEffects(list<effects>* e);
 
 		void heal(const unsigned short h);
 		void attack(character &e);
@@ -69,5 +73,7 @@ class character
 		enum location loc;
 		string name;
 		vector<skillKey> skills;
+		list<mods> currentMods;
+		list<effects> currentEffects;
 };
 #endif

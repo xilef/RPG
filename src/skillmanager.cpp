@@ -45,5 +45,8 @@ bool skillManager::exists(const string &name, const unsigned char level) const
 
 skill * skillManager::getSkill(const skillKey search) const
 {
-	return skillList.find(search)->second;
+	if (skillList.find(search) != skillList.end())
+		return skillList.find(search)->second;
+
+	return NULL;
 }

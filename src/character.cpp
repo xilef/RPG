@@ -101,3 +101,29 @@ bool character::useSp(unsigned short s)
 	
 	return (true);
 }
+
+void character::addMods(list<mods>* m)
+{
+	list<mods>::iterator it;
+	mods temp;
+
+	if (m != NULL) {
+		for (it = m->begin(); it != m->end(); it++) {
+			temp = (*it);
+			currentMods.push_back(temp);
+		}
+	}
+}
+
+void character::addEffects(list<effects>* e)
+{
+	list<effects>::iterator it;
+	effects temp;
+
+	if (e != NULL) {
+		for (it = e->begin(); it != e->end(); it++) {
+			temp = (*it);
+			currentEffects.push_back(temp);
+		}
+	}
+}

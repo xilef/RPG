@@ -16,6 +16,7 @@
 #include <limits>
 #include <typeinfo>
 #include <list>
+#include <ctime>
 
 using namespace::std;
 
@@ -37,6 +38,7 @@ void showOutsideMenu();
 
 void randomEncounter();
 void fight(character &enemy);
+void betweenTurns(character &ch, character &en);
 void useSkill(character &ch, character &en);
 void increaseStats(character &p);
 void makeEnemy(character &e, const unsigned char level);
@@ -135,11 +137,11 @@ void initPlayer(character &p, int choice)
 void initSkills()
 {
 	skill* sk;
-	effects* tempPlayerEffects, * tempEnemyEffects;
-	mods* tempPlayerMods, * tempEnemyMods;
+	effects tempPlayerEffects, tempEnemyEffects;
+	mods tempPlayerMods, tempEnemyMods;
 	string tempName, tempDescription;
-	list<mods*>* tempPlayerModsList, * tempEnemyModsList;
-	list<effects*>* tempPlayerEffectsList, * tempEnemyEffectsList;
+	list<mods>* tempPlayerModsList, * tempEnemyModsList;
+	list<effects>* tempPlayerEffectsList, * tempEnemyEffectsList;
 
 	// Warrior skills
 
@@ -166,15 +168,12 @@ void initSkills()
 	// Level 3
 	tempName = "Hell Fire";
 	tempDescription = "Burn your target with a incredible flame, the target recieves 100 damage and another 30 damage for the next 3 turns.";
-	tempPlayerEffects = NULL;
-	tempEnemyEffects = new effects(CONSECUTIVE_DAMAGE, 30, 3, 100);
-	tempPlayerMods = NULL;
-	tempEnemyMods = NULL;
+	tempEnemyEffects = effects(CONSECUTIVE_DAMAGE, 30, 3, 100);
 
 	tempPlayerModsList = NULL;
 	tempEnemyModsList = NULL;
 	tempPlayerEffectsList = NULL;
-	tempEnemyEffectsList = new list<effects*>;
+	tempEnemyEffectsList = new list<effects>;
 	tempEnemyEffectsList->push_back(tempEnemyEffects);
 
 	sk = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 100, 35, 3, ACTIVE, MAGE,
@@ -183,8 +182,8 @@ void initSkills()
 
 	// Level 2
 	tempDescription = "Burn your target with a incredible flame, the target recieves 50 damage and another 20 damage for the next 2 turns.";
-	tempEnemyEffects = new effects(CONSECUTIVE_DAMAGE, 20, 2, 100);
-	tempEnemyEffectsList = new list<effects*>;
+	tempEnemyEffects = effects(CONSECUTIVE_DAMAGE, 20, 2, 100);
+	tempEnemyEffectsList = new list<effects>;
 	tempEnemyEffectsList->push_back(tempEnemyEffects);
 
 	sk = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 50, 25, 2, ACTIVE, MAGE,
@@ -193,8 +192,8 @@ void initSkills()
 
 	// Level 1
 	tempDescription = "Burn your target with a incredible flame, the target recieves 20 damage and another 10 damage for the next turn.";
-	tempEnemyEffects = new effects(CONSECUTIVE_DAMAGE, 10, 1, 100);
-	tempEnemyEffectsList = new list<effects*>;
+	tempEnemyEffects = effects(CONSECUTIVE_DAMAGE, 10, 1, 100);
+	tempEnemyEffectsList = new list<effects>;
 	tempEnemyEffectsList->push_back(tempEnemyEffects);
 
 	sk = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 20, 15, 1, ACTIVE, MAGE,
@@ -228,13 +227,10 @@ void initSkills()
 	// Level 3
 	tempName = "Frostbite";
 	tempDescription = "Freeze your target dealing 150 damage and the target attack will be reduced by 60% in the next turn.";
-	tempPlayerEffects = NULL;
-	tempEnemyEffects = NULL;
-	tempPlayerMods = NULL;
-	tempEnemyMods = new mods(ATK, 60, 1, 100);
+	tempEnemyMods = mods(ATK, 60, 1, 100);
 
 	tempPlayerModsList = NULL;
-	tempEnemyModsList = new list<mods*>;
+	tempEnemyModsList = new list<mods>;
 	tempEnemyModsList->push_back(tempEnemyMods);
 	tempPlayerEffectsList = NULL;
 	tempEnemyEffectsList = NULL;
@@ -245,8 +241,8 @@ void initSkills()
 
 	// Level 2
 	tempDescription = "Freeze your target dealing 50 damage and the target attack will be reduced by 30% in the next turn.";
-	tempEnemyMods = new mods(ATK, 30, 1, 100);
-	tempEnemyModsList = new list<mods*>;
+	tempEnemyMods = mods(ATK, 30, 1, 100);
+	tempEnemyModsList = new list<mods>;
 	tempEnemyModsList->push_back(tempEnemyMods);
 
 	sk = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 50, 20, 2, ACTIVE, MAGE,
@@ -255,8 +251,8 @@ void initSkills()
 
 	// Level 1
 	tempDescription = "Freeze your target dealing 10 damage and the target attack will be reduced by 20% in the next turn.";
-	tempEnemyMods = new mods(ATK, 20, 1, 100);
-	tempEnemyModsList = new list<mods*>;
+	tempEnemyMods = mods(ATK, 20, 1, 100);
+	tempEnemyModsList = new list<mods>;
 	tempEnemyModsList->push_back(tempEnemyMods);
 
 	sk = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 10, 5, 1, ACTIVE, MAGE,
@@ -298,18 +294,15 @@ void initSkills()
 	// Level 3
 	tempName = "Thunder Burst";
 	tempDescription = "Call the force of thunder and lightning to hit the target dealing 175 damage, 50% chance of stunning the target and 50% chance of draining 35% of target's max hp.";
-	tempPlayerEffects = NULL;
-	tempEnemyEffects = new effects(KNOCKBACK, 1, 0, 50);
-	tempPlayerMods = NULL;
-	tempEnemyMods = NULL;
+	tempEnemyEffects = effects(KNOCKBACK, 1, 0, 50);
 
 	tempPlayerModsList = NULL;
 	tempEnemyModsList = NULL;
 	tempPlayerEffectsList = NULL;
-	tempEnemyEffectsList = new list<effects*>;
+	tempEnemyEffectsList = new list<effects>;
 	tempEnemyEffectsList->push_back(tempEnemyEffects);
 
-	tempEnemyEffects = new effects(HP_DRAIN, 35, 0, 50);
+	tempEnemyEffects = effects(HP_DRAIN, 35, 0, 50);
 	tempEnemyEffectsList->push_back(tempEnemyEffects);
 
 	sk = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 175, 50, 3, ACTIVE, MAGE,
@@ -318,8 +311,8 @@ void initSkills()
 
 	// Level 2
 	tempDescription = "Call the force of thunder and lightning to hit the target dealing 75 damage, 35% chance of stunning the target.";
-	tempEnemyEffects = new effects(KNOCKBACK, 1, 0, 35);
-	tempEnemyEffectsList = new list<effects*>;
+	tempEnemyEffects = effects(KNOCKBACK, 1, 0, 35);
+	tempEnemyEffectsList = new list<effects>;
 	tempEnemyEffectsList->push_back(tempEnemyEffects);
 
 	sk = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 75, 20, 2, ACTIVE, MAGE,
@@ -328,8 +321,8 @@ void initSkills()
 
 	// Level 1
 	tempDescription = "Call the force of thunder and lightning to hit the target dealing 20 damage, 20% chance of stunning the target.";
-	tempEnemyEffects = new effects(KNOCKBACK, 1, 0, 50);
-	tempEnemyEffectsList = new list<effects*>;
+	tempEnemyEffects = effects(KNOCKBACK, 1, 0, 50);
+	tempEnemyEffectsList = new list<effects>;
 	tempEnemyEffectsList->push_back(tempEnemyEffects);
 
 	sk = new skill(tempPlayerModsList, tempPlayerEffectsList, tempEnemyModsList, tempEnemyEffectsList, 20, 5, 1, ACTIVE, MAGE,
@@ -563,6 +556,7 @@ void fight(character &enemy)
 	while (!player.isDead() && !enemy.isDead() && !escape) {
 		viewBattleStats(player);
 		viewBattleStats(enemy);
+		betweenTurns(player, enemy);
 
 		if (pturn > 0) {
 			//do {
@@ -645,6 +639,36 @@ void fight(character &enemy)
 	cout << endl;
 }
 
+void betweenTurns(character &ch, character &en)
+{
+	list<mods> mod = en.getCurrentMods();
+	list<mods>::iterator mod_it;
+	list<effects> effect = en.getCurrentEffects();
+	list<effects>::iterator effect_it;
+
+	mod_it = mod.begin();
+	while (mod_it != mod.end()) {
+		mod_it->turns--;
+
+		if (mod_it->turns <= 0)
+			mod_it = mod.erase(mod_it);
+
+		if (mod_it != mod.end())
+			mod_it++;
+	}
+
+	effect_it = effect.begin();
+	while (effect_it != effect.end()) {
+		effect_it->turns--;
+
+		if (effect_it->turns <= 0)
+			effect_it = effect.erase(effect_it);
+
+		if (effect_it != effect.end())
+			effect_it++;
+	}
+}
+
 void useSkill(character &ch, character &en)
 {
 	vector<skillKey> skillList = ch.getSkillList();
@@ -687,6 +711,11 @@ void useSkill(character &ch, character &en)
 	cout << endl << "Used " << sk->getName() << "!" << endl;
 	ch.useSp(sk->getSpCost());
 	en.receiveDamage(sk->getDamage());
+	
+	ch.addMods(sk->getPlayerMods());
+	ch.addEffects(sk->getPlayerEffects());
+	en.addMods(sk->getEnemyMods());
+	en.addEffects(sk->getEnemyEffects());
 }
 
 // Increase stats for level-up
